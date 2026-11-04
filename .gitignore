@@ -36,7 +36,7 @@ pnpm-debug.log*
 # Dependencies
 # ─────────────────────────────
 node_modules/
-vendor/
+/vendor/
 packages/
 target/
 bin/
@@ -116,3 +116,8 @@ CLAUDE.local.md
 .mcp.json
 
 .phpunit.cache/
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/

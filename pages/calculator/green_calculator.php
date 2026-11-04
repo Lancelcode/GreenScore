@@ -75,7 +75,7 @@ if ($submitted && $points === null) {
     <?php include ROOT_PATH . '/includes/head.php'; ?>
     <title>Green Calculator | GreenScore</title>
     <meta name="description" content="Complete the GreenScore sustainability assessment to receive a score, feedback and a certificate for your organisation.">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/assets/vendor/animate/animate.min.css" rel="stylesheet">
     <style>
         /* Calculator-specific only */
         html { overflow-y: scroll; }
@@ -242,7 +242,7 @@ if ($submitted && $points === null) {
 <?php endif; ?>
 
 <?php include ROOT_PATH . '/includes/footer.php'; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 <?php mysqli_close($link); ?>

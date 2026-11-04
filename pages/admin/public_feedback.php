@@ -133,7 +133,7 @@ $result = mysqli_query($link,
 </div>
 
 <?php include ROOT_PATH . '/includes/footer.php'; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 <script>
 function deleteFeedback(form, id) {
     fetch(window.location.href, {
