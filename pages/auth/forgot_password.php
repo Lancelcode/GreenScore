@@ -33,11 +33,12 @@ $b = BASE_URL;
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <div class="container content-wrapper">
     <div class="auth-wrapper">
         <div class="auth-card">
-            <h2 class="text-success text-center mb-4">🔄 Reset Your Password</h2>
+            <h1 class="h2 text-success text-center mb-4">🔄 Reset Your Password</h1>
 
             <div class="alert alert-info" role="status">
                 <p class="mb-2">For your security, passwords can't be reset from this page.</p>
@@ -51,7 +52,8 @@ $b = BASE_URL;
     </div>
 </div>
 
+</main>
 <?php include ROOT_PATH . '/includes/footer.php'; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>

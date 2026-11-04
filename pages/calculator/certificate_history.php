@@ -122,10 +122,10 @@ $results = mysqli_stmt_get_result($data_stmt);
         .award-bronze { border-left: 5px solid #a0522d; }
         .award-other  { border-left: 5px solid #4CAF50; }
 
-        .badge-gold   { background: #fff8e1; color: #b8860b; border: 1px solid #d4a017; }
+        .badge-gold   { background: #fff8e1; color: #6d4c00; border: 1px solid #d4a017; }
         .badge-silver { background: #eceff1; color: #546e7a; border: 1px solid #8a9ba8; }
         .badge-bronze { background: #fbe9e7; color: #6d4c41; border: 1px solid #a0522d; }
-        .badge-other  { background: #e8f5e9; color: #2e7d32; border: 1px solid #4CAF50; }
+        .badge-other  { background: #e8f5e9; color: #1b5e20; border: 1px solid #4CAF50; }
 
         .cert-card {
             background: rgba(255,255,255,0.96);
@@ -140,7 +140,7 @@ $results = mysqli_stmt_get_result($data_stmt);
         }
         .cert-score-bar  { height: 6px; border-radius: 3px; background: #e9ecef; }
         .cert-score-fill { height: 100%; border-radius: 3px; background: #4CAF50; }
-        .cert-ref { font-family: monospace; font-size: 0.75rem; color: #999; }
+        .cert-ref { font-family: monospace; font-size: 0.75rem; color: #595959; }
         .pill {
             display: inline-block;
             padding: 0.2rem 0.65rem;
@@ -154,13 +154,15 @@ $results = mysqli_stmt_get_result($data_stmt);
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
 <div class="page-wrapper d-flex flex-column min-vh-100">
+<main id="main" tabindex="-1">
     <div class="container content-wrapper">
         <h1 class="text-white text-center mb-4">📜 Certificate History</h1>
 
         <!-- Filters + Clear All -->
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
             <form class="d-flex gap-2 flex-wrap" method="get">
-                <select name="sort" class="form-select form-select-sm" style="width:auto;"
+                <label for="sortSelect" class="visually-hidden">Sort order</label>
+                <select name="sort" id="sortSelect" class="form-select form-select-sm" style="width:auto;"
                         onchange="this.form.submit()">
                     <option value="newest" <?= (($_GET['sort'] ?? 'newest') === 'newest') ? 'selected' : '' ?>>
                         Newest First
@@ -169,7 +171,8 @@ $results = mysqli_stmt_get_result($data_stmt);
                         Oldest First
                     </option>
                 </select>
-                <select name="level" class="form-select form-select-sm" style="width:auto;"
+                <label for="levelSelect" class="visually-hidden">Filter by award</label>
+                <select name="level" id="levelSelect" class="form-select form-select-sm" style="width:auto;"
                         onchange="this.form.submit()">
                     <option value="">All Awards</option>
                     <?php foreach ($award_levels as $level): ?>
@@ -230,13 +233,13 @@ $results = mysqli_stmt_get_result($data_stmt);
                             </div>
 
                             <div class="d-flex gap-2 mb-3">
-                                <span class="pill" style="background:#e8f5e9;color:#2e7d32;border:1px solid #4CAF50;">
+                                <span class="pill" style="background:#e8f5e9;color:#1b5e20;border:1px solid #4CAF50;">
                                     🟢 <?= (int) $row['green_count'] ?>
                                 </span>
-                                <span class="pill" style="background:#fff8e1;color:#e65100;border:1px solid #ffa000;">
+                                <span class="pill" style="background:#fff8e1;color:#8a3a00;border:1px solid #ffa000;">
                                     🟠 <?= (int) $row['amber_count'] ?>
                                 </span>
-                                <span class="pill" style="background:#fce4ec;color:#c62828;border:1px solid #e53935;">
+                                <span class="pill" style="background:#fce4ec;color:#a31515;border:1px solid #e53935;">
                                     🔴 <?= (int) $row['red_count'] ?>
                                 </span>
                             </div>
@@ -249,11 +252,11 @@ $results = mysqli_stmt_get_result($data_stmt);
                                     <input type="text" name="award_level"
                                            value="<?= htmlspecialchars($row['award_level']) ?>"
                                            class="form-control form-control-sm mb-1"
-                                           placeholder="Award level" required>
+                                           placeholder="Award level" aria-label="Award level for <?= e($cert_ref) ?>" required>
                                     <input type="text" name="feedback_message"
                                            value="<?= htmlspecialchars($row['feedback_message'] ?? '') ?>"
                                            class="form-control form-control-sm mb-2"
-                                           placeholder="Feedback message" required>
+                                           placeholder="Feedback message" aria-label="Feedback message for <?= e($cert_ref) ?>" required>
                                     <button type="submit" class="btn btn-sm btn-primary w-100">💾 Save</button>
                                 </form>
                             <?php else: ?>
@@ -266,7 +269,8 @@ $results = mysqli_stmt_get_result($data_stmt);
 
                             <div class="d-flex gap-2 mt-auto pt-2">
                                 <a href="<?= $b ?>/pages/calculator/certificate_preview.php?id=<?= (int) $row['id'] ?>"
-                                   class="btn btn-sm btn-success flex-grow-1">
+                                   class="btn btn-sm btn-success flex-grow-1"
+                                   aria-label="View certificate <?= e($cert_ref) ?>">
                                     📄 View
                                 </a>
 
@@ -277,7 +281,7 @@ $results = mysqli_stmt_get_result($data_stmt);
                                                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                                         <input type="hidden" name="reset_id" value="<?= (int) $row['id'] ?>">
                                         <button type="submit" class="btn btn-sm btn-warning"
-                                                title="Reset" style="width:36px;">🔁</button>
+                                                title="Reset" aria-label="Reset <?= e($cert_ref) ?>" style="width:36px;">🔁</button>
                                     </form>
                                 <?php endif; ?>
 
@@ -287,7 +291,7 @@ $results = mysqli_stmt_get_result($data_stmt);
                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                                     <input type="hidden" name="delete_id" value="<?= (int) $row['id'] ?>">
                                     <button type="submit" class="btn btn-sm btn-outline-danger"
-                                            title="Delete" style="width:36px;">🗑️</button>
+                                            title="Delete" aria-label="Delete <?= e($cert_ref) ?>" style="width:36px;">🗑️</button>
                                 </form>
                             </div>
                         </div>
@@ -337,9 +341,10 @@ $results = mysqli_stmt_get_result($data_stmt);
         </div>
     </div>
 
+    </main>
     <?php include ROOT_PATH . '/includes/footer.php'; ?>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 <?php

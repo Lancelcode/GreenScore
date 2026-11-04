@@ -41,14 +41,15 @@ $b = BASE_URL;
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <div class="container content-wrapper">
     <div class="auth-wrapper">
         <div class="auth-card">
-            <h2 class="text-success text-center mb-4">Login to GreenScore</h2>
+            <h1 class="h2 text-success text-center mb-4">Login to GreenScore</h1>
 
             <form action="<?= $b ?>/includes/login_action.php" method="post"
-                  autocomplete="on" novalidate>
+                  autocomplete="on">
                 <input type="hidden" name="csrf_token"
                        value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
@@ -56,21 +57,16 @@ $b = BASE_URL;
                     <label for="email" class="form-label">Email:</label>
                     <input type="email" id="email" name="email" class="form-control"
                            required placeholder="Enter your email"
-                           autocomplete="email"
-                           aria-label="Email address"
-                           aria-required="true">
+                           autocomplete="email">
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password:</label>
                     <input type="password" id="password" name="password" class="form-control"
                            required placeholder="Enter your password"
-                           autocomplete="current-password"
-                           aria-label="Password"
-                           aria-required="true">
+                           autocomplete="current-password">
                 </div>
 
-                <button type="submit" class="btn btn-success w-100 py-2"
-                        aria-label="Log in to GreenScore">Login</button>
+                <button type="submit" class="btn btn-success w-100 py-2">Log in</button>
             </form>
 
             <div class="text-center mt-3">
@@ -87,7 +83,8 @@ $b = BASE_URL;
     </div>
 </div>
 
+</main>
 <?php include ROOT_PATH . '/includes/footer.php'; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>

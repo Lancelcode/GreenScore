@@ -1,0 +1,13 @@
+[Unit]
+Description=GreenScore database backup
+Wants=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+# Change these two paths/users to match your server (see DEPLOY.md).
+User=greenscore
+WorkingDirectory=/opt/greenscore
+ExecStart=/opt/greenscore/scripts/backup-db.sh
+Nice=10
+IOSchedulingClass=idle

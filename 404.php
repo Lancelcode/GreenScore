@@ -42,6 +42,7 @@ $b = BASE_URL;
 <body class="bg-page overlay-60"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include __DIR__ . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <div class="error-page">
     <div class="error-code">404</div>
@@ -70,7 +71,8 @@ $b = BASE_URL;
     </div>
 </div>
 
+</main>
 <?php include __DIR__ . '/includes/footer.php'; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>

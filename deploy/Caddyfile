@@ -1,0 +1,38 @@
+# Caddy reverse proxy for GreenScore.
+#
+# SITE_ADDRESS (from .env) decides how the site is served:
+#   greenscore.<tailnet>.ts.net   HTTPS with a certificate from Tailscale
+#   http://greenscore             plain HTTP over the tailnet (traffic is
+#                                 still encrypted by WireGuard)
+{
+	# Admin API only reachable inside the container (used by the healthcheck)
+	admin 127.0.0.1:2019
+}
+
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	reverse_proxy app:80 {
+		health_uri /health.php
+		health_interval 30s
+		health_timeout 5s
+	}
+
+	header {
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# HSTS only makes sense (and is only honoured) over HTTPS
+	@https protocol https
+	header @https Strict-Transport-Security "max-age=31536000"
+
+	@static path /assets/* /style.css
+	header @static Cache-Control "public, max-age=604800"
+
+	log {
+		output stdout
+		format console
+	}
+}

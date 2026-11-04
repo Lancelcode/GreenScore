@@ -35,9 +35,10 @@ mysqli_close($link);
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-money.jpg'); color: #333;">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <div class="container content-wrapper">
-    <h2 class="text-white text-center mb-4">💳 Your Saved Credit Cards</h2>
+    <h1 class="h2 text-white text-center mb-4">💳 Your Saved Credit Cards</h1>
 
     <?php if (!empty($rows)): ?>
         <div class="card card-bg shadow-sm p-4 mb-4">
@@ -92,6 +93,7 @@ mysqli_close($link);
     </div>
 </div>
 
+</main>
 <?php include ROOT_PATH . '/includes/footer.php'; ?>
 
 <?php foreach ($rows as $row): ?>
@@ -168,6 +170,6 @@ mysqli_close($link);
 </div>
 <?php endforeach; ?>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>

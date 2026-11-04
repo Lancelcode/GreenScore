@@ -55,11 +55,12 @@ unset($_SESSION['register_errors'], $_SESSION['register_old']);
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <div class="container content-wrapper">
     <div class="auth-wrapper">
         <div class="auth-card">
-            <h2 class="text-success text-center mb-4">Create Your Account</h2>
+            <h1 class="h2 text-success text-center mb-4">Create Your Account</h1>
 
             <?php if (!empty($errors)): ?>
                 <div class="alert alert-danger">
@@ -122,7 +123,7 @@ unset($_SESSION['register_errors'], $_SESSION['register_old']);
                     <div class="strength-bar-wrap">
                         <div class="strength-bar" id="strengthBar"></div>
                     </div>
-                    <div class="strength-label" id="strengthLabel" style="color:#999;">
+                    <div class="strength-label" id="strengthLabel" style="color:#595959;" aria-live="polite">
                         Min 8 chars · uppercase · lowercase · number
                     </div>
                 </div>
@@ -137,7 +138,7 @@ unset($_SESSION['register_errors'], $_SESSION['register_old']);
                 </div>
 
                 <button type="submit" class="btn btn-success w-100 py-2">
-                    Subscribe for just £99 a year!
+                    Create account
                 </button>
             </form>
             <div class="text-center mt-3">
@@ -149,8 +150,9 @@ unset($_SESSION['register_errors'], $_SESSION['register_old']);
     </div>
 </div>
 
+</main>
 <?php include ROOT_PATH . '/includes/footer.php'; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 <script>
 (function () {
     const pass1     = document.getElementById('pass1');
@@ -183,18 +185,18 @@ unset($_SESSION['register_errors'], $_SESSION['register_old']);
         const score = scorePassword(pwd);
 
         const levels = [
-            { min: 0, max: 0, label: 'Min 8 chars · uppercase · lowercase · number', color: '#999',    width: '0%'   },
-            { min: 1, max: 2, label: 'Weak',     color: '#dc3545', width: '25%'  },
-            { min: 3, max: 3, label: 'Fair',     color: '#fd7e14', width: '50%'  },
-            { min: 4, max: 4, label: 'Good',     color: '#ffc107', width: '75%'  },
-            { min: 5, max: 6, label: 'Strong ✅', color: '#198754', width: '100%' },
+            { min: 0, max: 0, label: 'Min 8 chars · uppercase · lowercase · number', color: '#999',    text: '#595959', width: '0%'   },
+            { min: 1, max: 2, label: 'Weak',     color: '#dc3545', text: '#b02a37', width: '25%'  },
+            { min: 3, max: 3, label: 'Fair',     color: '#fd7e14', text: '#9a4a00', width: '50%'  },
+            { min: 4, max: 4, label: 'Good',     color: '#ffc107', text: '#6d5200', width: '75%'  },
+            { min: 5, max: 6, label: 'Strong ✅', color: '#198754', text: '#146c43', width: '100%' },
         ];
 
         const level = levels.find(l => score >= l.min && score <= l.max) || levels[0];
         bar.style.width      = pwd.length === 0 ? '0%' : level.width;
         bar.style.background = level.color;
         label.textContent    = level.label;
-        label.style.color    = level.color;
+        label.style.color    = level.text;
 
         updateMatch();
     }
@@ -206,7 +208,7 @@ unset($_SESSION['register_errors'], $_SESSION['register_old']);
         }
         const match = pass1.value === pass2.value;
         matchEl.textContent  = match ? '✅ Passwords match' : '❌ Passwords do not match';
-        matchEl.style.color  = match ? '#198754' : '#dc3545';
+        matchEl.style.color  = match ? '#146c43' : '#b02a37';
     }
 
     pass1.addEventListener('input', updateStrength);

@@ -44,30 +44,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
 <div class="page-wrapper">
+<main id="main" tabindex="-1">
     <div class="container content-wrapper">
-        <h2 class="text-white text-center mb-4">💬 We Value Your Feedback</h2>
+        <h1 class="h2 text-white text-center mb-4">💬 We Value Your Feedback</h1>
 
         <form method="POST" class="card card-bg p-4 shadow-sm mb-5">
             <input type="hidden" name="csrf_token"
                    value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
             <div class="form-group mb-3">
-                <label>Your Name:</label>
-                <input type="text" class="form-control"
+                <label for="fbName" class="form-label">Your Name:</label>
+                <input type="text" id="fbName" class="form-control"
                        value="<?= htmlspecialchars($user_name) ?>" disabled>
             </div>
             <div class="form-group mb-3">
-                <label>Your Email:</label>
-                <input type="email" class="form-control"
+                <label for="fbEmail" class="form-label">Your Email:</label>
+                <input type="email" id="fbEmail" class="form-control"
                        value="<?= htmlspecialchars($user_email) ?>" disabled>
             </div>
             <div class="form-group mb-3">
-                <label>Your Feedback:</label>
-                <textarea class="form-control" name="message" rows="4"></textarea>
+                <label for="fbMessage" class="form-label">Your Feedback:</label>
+                <textarea class="form-control" name="message" id="fbMessage" rows="4" required maxlength="2000"></textarea>
             </div>
             <button type="submit" class="btn btn-success w-100">✅ Submit Feedback</button>
         </form>
 
-        <h4 class="text-white mb-4">🗃 Public Feedback</h4>
+        <h2 class="h4 text-white mb-4">🗃 Public Feedback</h2>
 
         <?php
         $sql = "SELECT name, created_at, message,
@@ -113,8 +114,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ?>
     </div>
 
+    </main>
     <?php include ROOT_PATH . '/includes/footer.php'; ?>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>

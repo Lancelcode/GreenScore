@@ -1,0 +1,14 @@
+{
+  "name": "greenscore-e2e",
+  "private": true,
+  "description": "End-to-end and accessibility tests for GreenScore (Playwright)",
+  "scripts": {
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed",
+    "e2e:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
+    "@playwright/test": "1.63.0"
+  }
+}

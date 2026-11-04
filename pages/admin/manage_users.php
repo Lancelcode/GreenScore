@@ -73,7 +73,7 @@ $result = mysqli_query($link,
         .auth-wrapper { max-width: 1000px; margin: 0 auto; }
 
         .section-title {
-            color: #198754;
+            color: #146c43;
             font-weight: 600;
             font-size: 1.1rem;
             margin: 1.5rem 0 0.75rem;
@@ -94,11 +94,12 @@ $result = mysqli_query($link,
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <div class="container content-wrapper">
     <div class="auth-wrapper">
         <div class="auth-card">
-            <h2 class="text-success text-center mb-4">👥 Manage Users</h2>
+            <h1 class="h2 text-success text-center mb-4">👥 Manage Users</h1>
 
             <?php if ($error): ?>
                 <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
@@ -123,9 +124,9 @@ $result = mysqli_query($link,
                 }
                 mysqli_data_seek($result, 0);
             ?>
-            <div class="section-title"><?= $section['label'] ?>
+            <h2 class="section-title"><?= $section['label'] ?>
                 <span class="badge bg-secondary fw-normal ms-1"><?= $section_count ?></span>
-            </div>
+            </h2>
 
             <?php if ($section_count === 0): ?>
                 <p class="text-muted small mb-3">No users in this category.</p>
@@ -174,13 +175,15 @@ $result = mysqli_query($link,
     </div>
 </div>
 
+</main>
 <?php include ROOT_PATH . '/includes/footer.php'; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 <script>
 function deleteUser(form, id) {
     if (!confirm('Permanently delete this user?')) return false;
     fetch(window.location.href, { method: 'POST', body: new FormData(form) })
-        .then(() => {
+        .then((response) => {
+            if (!response.ok) return;
             const row = document.getElementById('user-row-' + id);
             row.classList.add('fade-out');
             setTimeout(() => row.remove(), 1000);

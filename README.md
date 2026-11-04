@@ -51,9 +51,9 @@ shows its progress over time.
 | Language | PHP 8.2+ (developed and containerised on 8.3) |
 | Database | MariaDB 11.4 (MySQL 8 also works) via `mysqli` prepared statements |
 | Web server | Apache 2.4 with `mod_rewrite` |
-| Front end | HTML5, CSS3, vanilla JavaScript, Bootstrap 5.3, Font Awesome 6 |
-| Tests | PHPUnit 11 |
-| Tooling | Docker and Docker Compose, GitHub Actions |
+| Front end | HTML5, CSS3, vanilla JavaScript, Bootstrap 5.3, Font Awesome 6 (self-hosted) |
+| Tests | PHPUnit 11 (unit), Playwright with axe-core (end-to-end, accessibility, mobile) |
+| Tooling | Docker and Docker Compose, Caddy, GitHub Actions |
 
 ## Architecture
 
@@ -95,8 +95,9 @@ Browser ──► Apache (.htaccess rules) ──► pages/*.php ──► inclu
 - Credentials come from environment variables. Nothing secret is stored in the code.
 - Saved cards store only the last four digits, expiry and name, never a full number or CVV.
   Contributions are a **demo**: no payment is taken.
-- Apache blocks direct access to `includes/`, `src/`, `database/`, `tests/`, `vendor/` and
-  dotfiles.
+- Apache blocks direct access to `includes/`, `src/`, `database/`, `tests/`, `vendor/`,
+  `scripts/` and dotfiles.
+- Front-end libraries are self-hosted, so pages make no third-party requests.
 
 ## Running with Docker (recommended)
 
@@ -172,10 +173,38 @@ composer lint                 # php -l on every file
 
 The unit tests cover the scoring rules and award boundaries, badge levels, registration
 and password validation, credential and account-status checks, CSRF tokens, card
-validation and configuration parsing.
+validation, proxy-aware client IPs and configuration parsing.
 
-GitHub Actions runs the lint and the tests on PHP 8.2 and 8.3 for every push and pull
-request, then builds the Docker stack and smoke-tests it.
+### End-to-end, accessibility and mobile tests
+
+Playwright drives a real browser against the Docker stack. It covers:
+
+- sign-up, login and logout;
+- the calculator, certificates and Buy Points;
+- community tips and the admin pages;
+- an [axe](https://github.com/dequelabs/axe-core) WCAG 2.1 AA scan of every page;
+- keyboard navigation;
+- layout checks on a phone-sized screen.
+
+```bash
+docker compose up -d --wait
+npm ci
+npx playwright install chromium   # first time only
+npx playwright test               # or: npm run e2e
+npx playwright show-report        # HTML report with traces of any failures
+```
+
+Set `E2E_BASE_URL` to test a different address. The tests create their own users and
+tips, so run them against a disposable database (`docker compose down -v` resets it).
+
+GitHub Actions runs the lint and unit tests on PHP 8.2 and 8.3 for every push and pull
+request, smoke-tests the Docker stack, then runs the Playwright suite against it.
+
+## Deploying
+
+[DEPLOY.md](DEPLOY.md) walks through running GreenScore on a small Debian home server
+reached over Tailscale. It covers the production Compose profile, Caddy with HTTPS,
+healthchecks, restart policies, nightly database backups and restores.
 
 ## Project structure
 
@@ -186,10 +215,13 @@ request, then builds the Docker stack and smoke-tests it.
 ├── includes/           bootstrap, DB connection, layout partials
 ├── src/                business rules (unit tested)
 ├── tests/Unit/         PHPUnit tests
+├── e2e/                Playwright end-to-end and accessibility tests
 ├── database/           schema and demo data
 ├── assets/             images, badge illustrations, PDF guides
 ├── docker/             PHP and Apache configuration for the image
-├── Dockerfile, docker-compose.yml, .env.example
+├── deploy/             Caddyfile and systemd backup timer
+├── scripts/            backup, restore and create-admin tools
+├── Dockerfile, docker-compose.yml, docker-compose.prod.yml, .env.example
 └── .github/workflows/  CI
 ```
 

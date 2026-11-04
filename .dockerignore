@@ -21,3 +21,6 @@ phpunit.xml
 package.json
 package-lock.json
 playwright.config.*
+deploy
+backups
+.env.production.example

@@ -75,18 +75,19 @@ if ($submitted && $points === null) {
     <?php include ROOT_PATH . '/includes/head.php'; ?>
     <title>Green Calculator | GreenScore</title>
     <meta name="description" content="Complete the GreenScore sustainability assessment to receive a score, feedback and a certificate for your organisation.">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/assets/vendor/animate/animate.min.css" rel="stylesheet">
     <style>
         /* Calculator-specific only */
         html { overflow-y: scroll; }
         .modal-header { background-color: #198754; color: white; }
-        .modal-title  { color: #00ff66 !important; }
+        .modal-title  { color: #fff !important; }
         body.modal-open { padding-right: 0 !important; }
     </style>
 </head>
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <div class="container mt-5 mb-5">
     <div class="card p-4 shadow-sm">
@@ -103,14 +104,18 @@ if ($submitted && $points === null) {
                         $modalId = "info" . preg_replace('/[^A-Za-z0-9]/', '', $measure);
                     ?>
                         <div class="form-group mb-3">
-                            <label><strong><?= htmlspecialchars($measure) ?></strong>
-                                <button type="button" class="btn btn-link p-0 ms-2"
+                            <div class="d-flex align-items-center">
+                                <label for="measure_<?= $index ?>" class="form-label mb-1 fw-bold">
+                                    <?= htmlspecialchars($measure) ?>
+                                </label>
+                                <button type="button" class="btn btn-link p-0 ms-2 mb-1 text-success"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#<?= $modalId ?>">
-                                    <i class="fas fa-eye"></i>
+                                        data-bs-target="#<?= $modalId ?>"
+                                        aria-label="What is <?= e($measure) ?>?">
+                                    <i class="fas fa-circle-info" aria-hidden="true"></i>
                                 </button>
-                            </label>
-                            <select class="form-control" name="measure_<?= $index ?>" required>
+                            </div>
+                            <select class="form-select" name="measure_<?= $index ?>" id="measure_<?= $index ?>" required>
                                 <option value="">-- Select Level --</option>
                                 <option value="10">🟢 Green (Excellent)</option>
                                 <option value="5">🟠 Amber (Moderate)</option>
@@ -118,13 +123,14 @@ if ($submitted && $points === null) {
                             </select>
                         </div>
 
-                        <div class="modal fade" id="<?= $modalId ?>" tabindex="-1">
+                        <div class="modal fade" id="<?= $modalId ?>" tabindex="-1"
+                             aria-labelledby="<?= $modalId ?>Title">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title"><?= htmlspecialchars($measure) ?></h5>
-                                        <button type="button" class="btn-close"
-                                                data-bs-dismiss="modal"></button>
+                                        <h2 class="modal-title h5" id="<?= $modalId ?>Title"><?= htmlspecialchars($measure) ?></h2>
+                                        <button type="button" class="btn-close btn-close-white"
+                                                data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body" style="white-space: pre-line;">
                                         <?= htmlspecialchars($explanations[$measure]) ?>
@@ -146,14 +152,14 @@ if ($submitted && $points === null) {
 
             <div class="col-md-4">
                 <div class="card shadow-sm p-3">
-                    <h5 class="mb-3 text-center">Legend</h5>
+                    <h2 class="h5 mb-3 text-center">Legend</h2>
                     <ul class="list-unstyled mb-3">
                         <li>🟢 <strong>Green</strong> = 10 points</li>
                         <li>🟠 <strong>Amber</strong> = 5 points</li>
                         <li>🔴 <strong>Red</strong>  = 0 points</li>
                     </ul>
                     <hr>
-                    <h6 class="text-center mb-2">Awards:</h6>
+                    <h3 class="h6 text-center mb-2">Awards:</h3>
                     <ul class="list-unstyled text-center mb-0">
                         <li>🥇 Gold:        80–100 pts</li>
                         <li>🥈 Silver:      65–79 pts</li>
@@ -162,7 +168,7 @@ if ($submitted && $points === null) {
                     </ul>
                 </div>
                 <div class="card shadow-sm p-3 mt-4">
-                    <h5 class="mb-3 text-center text-success">🌍 Ethical Reminder</h5>
+                    <h2 class="h5 mb-3 text-center text-success">🌍 Ethical Reminder</h2>
                     <p class="mb-0 text-center">
                         We encourage all companies to answer these questions truthfully.
                         Honest reflection is the first step toward meaningful change. 🌱🤝
@@ -175,35 +181,38 @@ if ($submitted && $points === null) {
 
 <?php if ($show_modal): ?>
 <div class="modal fade show" id="resultModal" tabindex="-1"
-     style="display:block;" aria-modal="true" role="dialog">
+     style="display:block;" aria-modal="true" role="dialog" aria-labelledby="resultTitle">
     <div class="modal-dialog modal-dialog-centered animate__animated animate__zoomIn">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title animate__animated animate__rubberBand">
+                <h2 class="modal-title h5 animate__animated animate__rubberBand" id="resultTitle">
                     <?= e($emoji) ?> <?= htmlspecialchars($award) ?>
-                </h5>
+                </h2>
             </div>
             <div class="modal-body">
                 <p><strong>Your Score:</strong> <?= $total ?> / 100</p>
                 <p><?= htmlspecialchars($message) ?></p>
 
                 <div class="mb-3">
-                    <label>🟢 Green</label>
-                    <div class="progress">
+                    <p class="mb-1" id="barGreen">🟢 Green</p>
+                    <div class="progress" role="progressbar" aria-labelledby="barGreen"
+                         aria-valuenow="<?= (int) $green ?>" aria-valuemin="0" aria-valuemax="10">
                         <div class="progress-bar bg-success"
                              style="width:<?= $green * 10 ?>%"><?= $green ?></div>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label>🟠 Amber</label>
-                    <div class="progress">
+                    <p class="mb-1" id="barAmber">🟠 Amber</p>
+                    <div class="progress" role="progressbar" aria-labelledby="barAmber"
+                         aria-valuenow="<?= (int) $amber ?>" aria-valuemin="0" aria-valuemax="10">
                         <div class="progress-bar bg-warning text-dark"
                              style="width:<?= $amber * 10 ?>%"><?= $amber ?></div>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label>🔴 Red</label>
-                    <div class="progress">
+                    <p class="mb-1" id="barRed">🔴 Red</p>
+                    <div class="progress" role="progressbar" aria-labelledby="barRed"
+                         aria-valuenow="<?= (int) $red ?>" aria-valuemin="0" aria-valuemax="10">
                         <div class="progress-bar bg-danger"
                              style="width:<?= $red * 10 ?>%"><?= $red ?></div>
                     </div>
@@ -224,10 +233,10 @@ if ($submitted && $points === null) {
                    class="btn btn-outline-success">📄 Download Certificate</a>
                 <?php if ($shortfall > 0): ?>
                     <a href="<?= $b ?>/pages/calculator/buy_points.php?shortfall=<?= (int) $shortfall ?>"
-                       class="btn btn-outline-warning">💸 Buy Points</a>
+                       class="btn btn-warning">💸 Buy Points</a>
                 <?php endif; ?>
                 <a href="<?= $b ?>/pages/community/community.php"
-                   class="btn btn-outline-info">🌱 Visit Community</a>
+                   class="btn btn-outline-primary">🌱 Visit Community</a>
                 <a href="<?= $b ?>/pages/info/green_resources.php"
                    class="btn btn-outline-dark">📚 Tips &amp; Guides</a>
                 <button class="btn btn-secondary"
@@ -241,8 +250,9 @@ if ($submitted && $points === null) {
 <div class="modal-backdrop fade show"></div>
 <?php endif; ?>
 
+</main>
 <?php include ROOT_PATH . '/includes/footer.php'; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 <?php mysqli_close($link); ?>

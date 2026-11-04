@@ -17,6 +17,7 @@ $b = BASE_URL;
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg'); color: #333;">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
 <div class="page-wrapper">
+<main id="main" tabindex="-1">
     <div class="container content-wrapper">
         <h1 class="text-white text-center mb-4">Terms &amp; Conditions</h1>
 
@@ -62,8 +63,9 @@ $b = BASE_URL;
             </a>
         </div>
     </div>
+    </main>
     <?php include ROOT_PATH . '/includes/footer.php'; ?>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>

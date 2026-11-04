@@ -10,7 +10,7 @@ $b = BASE_URL;
     <meta name="description" content="GreenScore partners with leading sustainability organisations including the UN, WWF, Greenpeace and more.">
     <style>
         .logo-grid img { max-height: 80px; object-fit: contain; }
-        .list-group-item a { text-decoration: none; color: #28a745; font-weight: bold; }
+        .list-group-item a { text-decoration: none; color: #146c43; font-weight: bold; }
         .list-group-item a:hover { text-decoration: underline; }
         body.dark-mode .list-group-item a { color: #4ade80; }
     </style>
@@ -19,6 +19,7 @@ $b = BASE_URL;
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg'); color: #333;">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
 <div class="page-wrapper">
+<main id="main" tabindex="-1">
     <div class="container content-wrapper text-center">
         <h1 class="text-white display-4 mb-4">🌍 GreenScore Partnerships</h1>
         <p class="text-white fs-5 mb-5">
@@ -28,12 +29,20 @@ $b = BASE_URL;
         <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-4
                     justify-content-center logo-grid mb-5">
             <?php
-            $logos = ['un','greenpeace','defra','wwf','ukgov','oxfam','edincol'];
-            foreach ($logos as $logo): ?>
+            $logos = [
+                'un'         => 'United Nations',
+                'greenpeace' => 'Greenpeace',
+                'defra'      => 'Department for Environment, Food & Rural Affairs',
+                'wwf'        => 'WWF',
+                'ukgov'      => 'UK Government',
+                'oxfam'      => 'Oxfam',
+                'edincol'    => 'Edinburgh College',
+            ];
+            foreach ($logos as $logo => $name): ?>
                 <div class="col">
                     <img src="<?= $b ?>/assets/images/logos/<?= $logo ?>.png"
                          class="img-fluid p-2 bg-white shadow-sm rounded"
-                         alt="<?= strtoupper($logo) ?>">
+                         alt="<?= e($name) ?> logo">
                 </div>
             <?php endforeach; ?>
         </div>
@@ -69,8 +78,9 @@ $b = BASE_URL;
         </div>
     </div>
 
+    </main>
     <?php include ROOT_PATH . '/includes/footer.php'; ?>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>

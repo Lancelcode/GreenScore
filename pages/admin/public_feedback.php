@@ -82,9 +82,10 @@ $result = mysqli_query($link,
 <body class="bg-page overlay-60 d-flex flex-column min-vh-100"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <div class="container content-wrapper flex-grow-1">
-    <h2 class="text-white text-center mb-5">💬 Community Feedback</h2>
+    <h1 class="h2 text-white text-center mb-5">💬 Community Feedback</h1>
     <div id="feedback-list">
         <?php while ($row = mysqli_fetch_assoc($result)): ?>
             <div class="feedback-card" id="feedback-<?= (int) $row['id'] ?>">
@@ -105,7 +106,8 @@ $result = mysqli_query($link,
                                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                         <input type="hidden" name="delete_id" value="<?= (int) $row['id'] ?>">
                         <button type="submit" name="delete_feedback"
-                                class="btn btn-sm btn-outline-danger">🗑</button>
+                                class="btn btn-sm btn-outline-danger"
+                                aria-label="Delete feedback from <?= e($row['name']) ?>">🗑</button>
                     </form>
                 </div>
 
@@ -132,15 +134,21 @@ $result = mysqli_query($link,
     </div>
 </div>
 
+</main>
 <?php include ROOT_PATH . '/includes/footer.php'; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 <script>
 function deleteFeedback(form, id) {
+    if (!confirm('Delete this feedback?')) return false;
+    const data = new FormData(form);
+    // FormData(form) omits the clicked button, so add the flag the server checks for.
+    data.append('delete_feedback', '1');
     fetch(window.location.href, {
         method: 'POST',
         headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        body: new FormData(form)
-    }).then(() => {
+        body: data
+    }).then((response) => {
+        if (!response.ok) return;
         const card = document.getElementById('feedback-' + id);
         card.classList.add('fade-out');
         setTimeout(() => card.remove(), 600);

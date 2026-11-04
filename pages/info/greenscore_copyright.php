@@ -15,6 +15,7 @@ $b = BASE_URL;
 <body class="bg-page overlay-60"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg'); color: #333;">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <main class="d-flex flex-column min-vh-100">
     <div class="container py-5 flex-grow-1">
@@ -35,9 +36,10 @@ $b = BASE_URL;
             </p>
         </div>
     </div>
+    </main>
     <?php include ROOT_PATH . '/includes/footer.php'; ?>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>
