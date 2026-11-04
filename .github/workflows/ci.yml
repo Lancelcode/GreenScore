@@ -48,6 +48,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate the production compose profile
+        env:
+          BIND_ADDRESS: 127.0.0.1
+          SITE_ADDRESS: http://localhost
+          DB_PASSWORD: ci-only
+          DB_ROOT_PASSWORD: ci-only
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml config --quiet
+          docker run --rm -e SITE_ADDRESS=http://localhost -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            caddy:2.8-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+          bash -n scripts/backup-db.sh scripts/restore-db.sh database/init-prod/02-production.sh
+
       - name: Build and start the stack
         run: docker compose up -d --build --wait --wait-timeout 180
 
