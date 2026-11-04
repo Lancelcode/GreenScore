@@ -23,7 +23,7 @@ if (empty($password)) $errors[] = 'Password is required.';
 
 // ── Rate limiting ────────────────────────────────────────────
 // Block an IP that has 5+ failed attempts in the last 15 minutes
-$ip           = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+$ip           = \GreenScore\Http::clientIp($_SERVER, \GreenScore\Env::bool('TRUST_PROXY'));
 $window       = 15 * 60; // 15 minutes in seconds
 $max_attempts = 5;
 $locked_out   = false;
