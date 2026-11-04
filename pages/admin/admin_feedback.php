@@ -40,11 +40,12 @@ $result = mysqli_query($link,
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <div class="container content-wrapper">
     <div class="auth-wrapper">
         <div class="auth-card">
-            <h2 class="text-success text-center mb-4">🛠 Admin Feedback Panel</h2>
+            <h1 class="h2 text-success text-center mb-4">🛠 Admin Feedback Panel</h1>
 
             <?php if (mysqli_num_rows($result) > 0): ?>
                 <form action="<?= $b ?>/pages/admin/process_feedback_admin.php" method="POST">
@@ -97,6 +98,7 @@ $result = mysqli_query($link,
     </div>
 </div>
 
+</main>
 <?php include ROOT_PATH . '/includes/footer.php'; ?>
 <script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>

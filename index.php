@@ -35,6 +35,7 @@ $b = BASE_URL;
       style="background-image: url('<?= $b ?>/assets/images/earth-bg.jpg');">
 <?php include __DIR__ . '/includes/nav.php'; ?>
 <div class="page-wrapper">
+<main id="main" tabindex="-1">
 
     <!-- Hero -->
     <div class="container content-wrapper text-center">
@@ -118,7 +119,7 @@ $b = BASE_URL;
 
     <!-- Badge Carousel -->
     <div class="container content-wrapper">
-        <h2 class="text-white text-center mb-4">🏆 GreenScore Badge Levels</h2>
+        <h2 class="section-band text-center mb-4">🏆 GreenScore Badge Levels</h2>
         <div id="badgeCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
             <div class="carousel-inner">
                 <?php
@@ -149,6 +150,7 @@ $b = BASE_URL;
         </div>
     </div>
 
+    </main>
     <?php include __DIR__ . '/includes/footer.php'; ?>
 </div>
 

@@ -11,8 +11,9 @@ if (!function_exists('isActive')) {
 $b = BASE_URL;
 ?>
 
+<a class="skip-link" href="#main">Skip to main content</a>
 <header class="sticky-top shadow">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success px-3">
+    <nav class="navbar navbar-expand-lg navbar-dark px-3" aria-label="Main">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="<?= $b ?>/index.php">🏠 GreenScore</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -162,7 +163,8 @@ $b = BASE_URL;
                     <?php endif; ?>
 
                     <li class="nav-item">
-                        <button id="darkModeToggle" class="dark-mode-btn" title="Toggle dark mode">
+                        <button id="darkModeToggle" type="button" class="dark-mode-btn" title="Toggle dark mode"
+                                aria-label="Dark mode" aria-pressed="false">
                             🌙
                         </button>
                     </li>

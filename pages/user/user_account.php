@@ -46,6 +46,7 @@ $phone    = htmlspecialchars($row['phone_number']   ?? '—');
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <div class="container content-wrapper">
     <h1 class="text-white text-center display-5 mb-5">
@@ -140,6 +141,7 @@ $phone    = htmlspecialchars($row['phone_number']   ?? '—');
     </div>
 </div>
 
+</main>
 <?php include ROOT_PATH . '/includes/footer.php'; ?>
 <script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>

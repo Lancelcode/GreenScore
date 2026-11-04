@@ -5,6 +5,7 @@
 /* ── Variables ─────────────────────────────────────────────── */
 :root {
     --green-primary:  #198754;
+    --green-dark-ui:  #146c43;
     --green-light:    #d4edda;
     --green-dark:     #14532d;
     --gray-light:     #f8f9fa;
@@ -63,8 +64,10 @@ body.overlay-60::before { background: rgba(0, 0, 0, 0.6); }
 
 /* ── Page structure ─────────────────────────────────────────── */
 .page-wrapper {
+    /* Positioned (without z-index) so it paints above the fixed overlay
+       without creating a stacking context that would trap Bootstrap modals
+       underneath their backdrop. */
     position: relative;
-    z-index: 1;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -74,7 +77,6 @@ body.overlay-60::before { background: rgba(0, 0, 0, 0.6); }
     flex: 1;
     padding: 4rem 1rem;
     position: relative;
-    z-index: 1;
 }
 
 /* ── Navbar ─────────────────────────────────────────────────── */
@@ -84,8 +86,11 @@ header {
 }
 
 .navbar {
-    background-color: var(--green-primary);
+    /* Darker than Bootstrap's success green so white text passes WCAG AA (6.4:1) */
+    background-color: var(--green-dark-ui);
 }
+.navbar .btn-outline-light,
+.navbar .text-light { color: #fff !important; }
 
 .navbar .nav-link,
 .navbar .navbar-brand {
@@ -102,14 +107,17 @@ header {
 .navbar .nav-link.nav-active,
 .navbar .nav-link.nav-section-active {
     font-weight: 700;
-    background-color: rgba(255, 255, 255, 0.18);
+    /* Darken rather than lighten so the white text keeps its contrast */
+    background-color: rgba(0, 0, 0, 0.25);
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
     border-radius: 0.25rem;
 }
 
 /* Active dropdown-item — green text + left border on white dropdown */
 .navbar .dropdown-item.nav-active {
     font-weight: 700;
-    color: #198754;
+    color: #146c43;
     background-color: #e8f5e9;
     border-left: 3px solid #198754;
     padding-left: calc(var(--bs-dropdown-item-padding-x) - 3px);
@@ -173,7 +181,6 @@ header {
 /* ── Auth pages (login, register, forgot) ───────────────────── */
 .auth-wrapper {
     position: relative;
-    z-index: 1;
 }
 
 .auth-card {
@@ -185,7 +192,7 @@ header {
 
 /* ── Footer ─────────────────────────────────────────────────── */
 footer {
-    background-color: var(--green-primary);
+    background-color: var(--green-dark-ui);
     color: var(--white);
     padding: 3rem 0 2rem;
     position: relative;
@@ -194,7 +201,7 @@ footer {
 }
 
 footer a {
-    color: rgba(255, 255, 255, 0.65);
+    color: #fff;
     text-decoration: none;
     transition: color var(--transition);
 }
@@ -516,4 +523,61 @@ body.dark-mode .progress {
 body.dark-mode #backToTop {
     background: #4ade80;
     color: #121212;
+}
+/* ── Accessibility ───────────────────────────────────────────── */
+/* Skip link: hidden until focused with the keyboard */
+.skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -100px;
+    z-index: 2000;
+    padding: 0.6rem 1rem;
+    background: #fff;
+    color: #0f5132;
+    font-weight: 700;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.skip-link:focus { top: 0.5rem; }
+
+main:focus { outline: none; }
+main { position: relative; }
+
+/* Clearly visible keyboard focus on every interactive element */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.btn:focus-visible {
+    outline: 3px solid #ffbf47;
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Site footer: several pages carry legacy inline `footer { background:#fff }`
+   rules; the footer must always keep its dark green background. */
+footer.site-footer { background-color: var(--green-dark-ui) !important; color: #fff !important; }
+
+/* White heading on its own dark band, so contrast never depends on the photo behind it */
+.section-band {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0.4rem 1.25rem;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 0.5rem;
 }

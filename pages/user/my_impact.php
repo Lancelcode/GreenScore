@@ -42,6 +42,7 @@ $greenPercent = \GreenScore\Badges::progressPercent($green);
 <body class="bg-page overlay-60 d-flex flex-column min-vh-100"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <div class="container content-wrapper flex-grow-1">
     <h1 class="text-white text-center mb-5">📊 My Sustainability Impact</h1>
@@ -53,10 +54,10 @@ $greenPercent = \GreenScore\Badges::progressPercent($green);
         <p><strong>Green Answers Earned:</strong> <?= $green ?> / 100</p>
         <p><strong>Total Contributions (demo):</strong> £<?= number_format($donation, 2) ?></p>
         <div class="mb-3">
-            <label class="form-label fw-semibold">Your Green Journey Progress</label>
+            <p class="form-label fw-semibold mb-1" id="journeyLabel">Your Green Journey Progress</p>
             <div class="progress">
                 <div class="progress-bar bg-success"
-                     style="width:<?= $greenPercent ?>%;" role="progressbar"
+                     style="width:<?= $greenPercent ?>%;" role="progressbar" aria-labelledby="journeyLabel"
                      aria-valuenow="<?= $greenPercent ?>" aria-valuemin="0" aria-valuemax="100">
                     <?= $greenPercent ?>%
                 </div>
@@ -110,6 +111,7 @@ $greenPercent = \GreenScore\Badges::progressPercent($green);
     </div>
 </div>
 
+</main>
 <?php include ROOT_PATH . '/includes/footer.php'; ?>
 <script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>

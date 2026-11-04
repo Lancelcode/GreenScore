@@ -181,10 +181,12 @@ elseif  (str_contains($award, 'Bronze')) $award_colour = '#a0522d';
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <div class="cert-page">
     <div>
         <div class="certificate">
+            <h1 class="visually-hidden">GreenScore certificate <?= e($cert_ref) ?></h1>
             <div class="cert-watermark">🌿</div>
 
             <div class="cert-logo">🌿</div>
@@ -224,6 +226,7 @@ elseif  (str_contains($award, 'Bronze')) $award_colour = '#a0522d';
     </div>
 </div>
 
+</main>
 <?php include ROOT_PATH . '/includes/footer.php'; ?>
 <script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 </body>

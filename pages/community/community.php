@@ -77,6 +77,7 @@ $results = mysqli_stmt_get_result($stmt);
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
 <div class="page-wrapper">
+<main id="main" tabindex="-1">
     <div class="container content-wrapper">
         <h1 class="text-white text-center mb-4">📝 Sustainability Community Board</h1>
         <p class="lead text-center text-white mb-4">Share your eco-friendly tips 💚</p>
@@ -84,20 +85,19 @@ $results = mysqli_stmt_get_result($stmt);
         <!-- Search bar -->
         <form method="GET" class="mb-4" role="search" aria-label="Search community tips">
             <div class="input-group">
-                <input type="text" name="search" class="form-control"
+                <label for="tipSearch" class="visually-hidden">Search tips</label>
+                <input type="search" name="search" id="tipSearch" class="form-control"
                        placeholder="🔍 Search tips..."
                        value="<?= htmlspecialchars($search) ?>"
-                       aria-label="Search tips"
                        maxlength="100">
-                <button class="btn btn-success" type="submit" aria-label="Submit search">Search</button>
+                <button class="btn btn-success" type="submit">Search</button>
                 <?php if ($search !== ''): ?>
                     <a href="<?= $b ?>/pages/community/community.php"
-                       class="btn btn-outline-light"
-                       aria-label="Clear search">✕ Clear</a>
+                       class="btn btn-outline-light">✕ Clear search</a>
                 <?php endif; ?>
             </div>
             <?php if ($search !== ''): ?>
-                <small class="text-white-50 mt-1 d-block">
+                <small class="text-white mt-1 d-block" role="status">
                     <?= $total ?> result<?= $total !== 1 ? 's' : '' ?> for
                     "<strong><?= htmlspecialchars($search) ?></strong>"
                 </small>
@@ -114,13 +114,12 @@ $results = mysqli_stmt_get_result($stmt);
                     <textarea name="message" id="tipMessage" rows="3" class="form-control"
                               placeholder="E.g. I switched to bamboo toothbrushes!"
                               maxlength="500" required
-                              aria-label="Your sustainability tip"
                               aria-describedby="tipCounter"></textarea>
                     <div class="d-flex justify-content-between align-items-center mt-1 mb-2">
                         <small id="tipCounter" class="text-muted" aria-live="polite">0 / 500</small>
                         <small class="text-muted fst-italic">Keep it concise and helpful 🌱</small>
                     </div>
-                    <button type="submit" class="btn btn-success" aria-label="Post tip">✅ Post Tip</button>
+                    <button type="submit" class="btn btn-success">✅ Post Tip</button>
                 </form>
                 <div class="mt-3">
                     <form method="POST" action="<?= $b ?>/pages/community/clear_tips.php"
@@ -140,7 +139,7 @@ $results = mysqli_stmt_get_result($stmt);
 
         <div class="card card-bg shadow-sm mb-4">
             <div class="card-body">
-                <h4 class="mb-4">💬 Latest Tips</h4>
+                <h2 class="h4 mb-4">💬 Latest Tips</h2>
 
                 <?php if (mysqli_num_rows($results) > 0): ?>
                     <?php while ($row = mysqli_fetch_assoc($results)): ?>
@@ -189,7 +188,7 @@ $results = mysqli_stmt_get_result($stmt);
                         <li class="page-item <?= ($p === $page) ? 'active' : '' ?>">
                             <a class="page-link"
                                href="?<?= http_build_query($params) ?>"
-                               aria-label="Page <?= $p ?>"><?= $p ?></a>
+                               aria-label="Page <?= $p ?>"<?= ($p === $page) ? ' aria-current="page"' : '' ?>><?= $p ?></a>
                         </li>
                     <?php endfor; ?>
                 </ul>
@@ -197,24 +196,26 @@ $results = mysqli_stmt_get_result($stmt);
         <?php endif; ?>
     </div>
 
+    </main>
     <?php include ROOT_PATH . '/includes/footer.php'; ?>
 </div>
 
-<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalTitle">
     <div class="modal-dialog">
         <form class="modal-content" action="<?= $b ?>/pages/community/edit_tip.php" method="POST">
             <input type="hidden" name="csrf_token"
                    value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Tip</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h2 class="modal-title h5" id="editModalTitle">Edit Tip</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" name="tip_id" id="editTipId">
+                <label for="editTipMessage" class="form-label">Your tip</label>
                 <textarea class="form-control" name="message"
                           id="editTipMessage" rows="4"
-                          maxlength="500" required></textarea>
-                <small id="editTipCounter" class="text-muted">0 / 500</small>
+                          maxlength="500" required aria-describedby="editTipCounter"></textarea>
+                <small id="editTipCounter" class="text-muted" aria-live="polite">0 / 500</small>
             </div>
             <div class="modal-footer">
                 <button type="submit" class="btn btn-success">💾 Save Changes</button>
@@ -251,11 +252,15 @@ wireCounter('tipMessage',    'tipCounter');
 wireCounter('editTipMessage','editTipCounter');
 
 function deleteTip(form, id) {
+    const data = new FormData(form);
+    // FormData(form) omits the clicked button, so add the flag the server checks for.
+    data.append('delete_tip', '1');
     fetch(window.location.href, {
         method: 'POST',
         headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        body: new FormData(form)
-    }).then(() => {
+        body: data
+    }).then((response) => {
+        if (!response.ok) { form.submit(); return; }
         const card = document.getElementById('tip-' + id);
         card.classList.add('fade-out');
         setTimeout(() => card.remove(), 600);

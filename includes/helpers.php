@@ -22,6 +22,7 @@ function renderEditButton(int $id, string $b): string {
 function renderRoleStatusForms(array $row): string {
     $csrf = htmlspecialchars($_SESSION['csrf_token'] ?? '');
     $id   = (int) $row['id'];
+    $who  = htmlspecialchars($row['username'] ?? ('user ' . $id), ENT_QUOTES);
 
     $roleSelected = [
         'user'  => $row['role'] === 'user'  ? 'selected' : '',
@@ -39,21 +40,21 @@ function renderRoleStatusForms(array $row): string {
         <input type='hidden' name='csrf_token' value='{$csrf}'>
         <input type='hidden' name='action' value='update_role'>
         <input type='hidden' name='user_id' value='{$id}'>
-        <select name='role' class='form-select form-select-sm d-inline-block w-auto'>
+        <select name='role' class='form-select form-select-sm d-inline-block w-auto' aria-label='Role for {$who}'>
             <option value='user'  {$roleSelected['user']}>User</option>
             <option value='admin' {$roleSelected['admin']}>Admin</option>
         </select>
-        <button class='btn btn-sm btn-outline-primary' type='submit'>Save</button>
+        <button class='btn btn-sm btn-outline-primary' type='submit' aria-label='Save role for {$who}'>Save</button>
     </form>
     <form method='post' class='d-inline-block'>
         <input type='hidden' name='csrf_token' value='{$csrf}'>
         <input type='hidden' name='action' value='update_status'>
         <input type='hidden' name='user_id' value='{$id}'>
-        <select name='status' class='form-select form-select-sm d-inline-block w-auto'>
+        <select name='status' class='form-select form-select-sm d-inline-block w-auto' aria-label='Status for {$who}'>
             <option value='active'      {$statusSelected['active']}>Active</option>
             <option value='inactive'    {$statusSelected['inactive']}>Inactive</option>
             <option value='deactivated' {$statusSelected['deactivated']}>Deactivated</option>
         </select>
-        <button class='btn btn-sm btn-outline-primary' type='submit'>Save</button>
+        <button class='btn btn-sm btn-outline-primary' type='submit' aria-label='Save status for {$who}'>Save</button>
     </form>";
 }

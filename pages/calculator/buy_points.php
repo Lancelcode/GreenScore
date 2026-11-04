@@ -72,6 +72,7 @@ mysqli_close($link);
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
 <?php include ROOT_PATH . '/includes/nav.php'; ?>
+<main id="main" tabindex="-1">
 
 <div class="page-wrapper">
     <div class="container content-wrapper">
@@ -139,6 +140,7 @@ mysqli_close($link);
         </div>
     </div>
 
+    </main>
     <?php include ROOT_PATH . '/includes/footer.php'; ?>
 </div>
 <script src="<?= BASE_URL ?>/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
