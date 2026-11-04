@@ -12,7 +12,7 @@ function isActive(string $path): string {
 // ── renderEditButton() ───────────────────────────────────────
 // Renders the Edit Details button for a user row in manage_users.php
 function renderEditButton(int $id, string $b): string {
-    return '<a href="' . $b . '/pages/admin/edit_user.php?id=' . $id
+    return '<a href="' . htmlspecialchars($b, ENT_QUOTES) . '/pages/admin/edit_user.php?id=' . $id
          . '" class="btn btn-sm btn-outline-secondary">&#9999;&#65039; Edit Details</a>';
 }
 

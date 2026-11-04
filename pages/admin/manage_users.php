@@ -15,9 +15,7 @@ $error   = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
-    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
-        die('Invalid CSRF token.');
-    }
+    \GreenScore\Csrf::requireValid();
     $delete_id = (int)($_POST['user_id'] ?? 0);
     if ($delete_id === (int)$_SESSION['user_id']) {
         $error = 'You cannot delete your own account.';
@@ -31,11 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_role') {
-    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
-        die('Invalid CSRF token.');
-    }
+    \GreenScore\Csrf::requireValid();
     $uid     = (int)($_POST['user_id'] ?? 0);
-    $newRole = ($_POST['role'] === 'admin') ? 'admin' : 'user';
+    $newRole = (($_POST['role'] ?? '') === 'admin') ? 'admin' : 'user';
     if ($uid !== (int)$_SESSION['user_id']) {
         $stmt = mysqli_prepare($link, 'UPDATE new_users SET role = ? WHERE id = ?');
         mysqli_stmt_bind_param($stmt, 'si', $newRole, $uid);
@@ -48,25 +44,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_status') {
-    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
-        die('Invalid CSRF token.');
-    }
+    \GreenScore\Csrf::requireValid();
     $uid       = (int)($_POST['user_id'] ?? 0);
     $allowed   = ['active', 'inactive', 'deactivated'];
-    $newStatus = in_array($_POST['status'], $allowed) ? $_POST['status'] : 'active';
-    $stmt      = mysqli_prepare($link, 'UPDATE new_users SET status = ? WHERE id = ?');
-    mysqli_stmt_bind_param($stmt, 'si', $newStatus, $uid);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
-    $success = 'Status updated.';
+    $newStatus = in_array($_POST['status'] ?? '', $allowed, true) ? $_POST['status'] : 'active';
+    if ($uid === (int) $_SESSION['user_id']) {
+        $error = 'Cannot change your own status.';
+    } else {
+        $stmt = mysqli_prepare($link, 'UPDATE new_users SET status = ? WHERE id = ?');
+        mysqli_stmt_bind_param($stmt, 'si', $newStatus, $uid);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+        $success = 'Status updated.';
+    }
 }
 
 $result = mysqli_query($link,
     'SELECT id, username, email, created_at, role, status FROM new_users ORDER BY username'
 );
-if (!$result) die('Query error: ' . mysqli_error($link));
 
-include ROOT_PATH . '/includes/nav.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -97,6 +93,7 @@ include ROOT_PATH . '/includes/nav.php';
 </head>
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
+<?php include ROOT_PATH . '/includes/nav.php'; ?>
 
 <div class="container content-wrapper">
     <div class="auth-wrapper">
