@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/includes/init.php';
-include __DIR__ . '/includes/nav.php';
 $b = BASE_URL;
 ?>
 <!DOCTYPE html>
@@ -34,6 +33,7 @@ $b = BASE_URL;
 </head>
 <body class="bg-page overlay-60"
       style="background-image: url('<?= $b ?>/assets/images/earth-bg.jpg');">
+<?php include __DIR__ . '/includes/nav.php'; ?>
 <div class="page-wrapper">
 
     <!-- Hero -->
@@ -122,22 +122,7 @@ $b = BASE_URL;
         <div id="badgeCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
             <div class="carousel-inner">
                 <?php
-                $badges = [
-                    ['slug' => 'green_starter',             'label' => '🌱 Green Starter'],
-                    ['slug' => 'eco_explorer',              'label' => '🌿 Eco Explorer'],
-                    ['slug' => 'climate_cadet',             'label' => '🎖 Climate Cadet'],
-                    ['slug' => 'forest_friend',             'label' => '🌳 Forest Friend'],
-                    ['slug' => 'carbon_cutter',             'label' => '✂️ Carbon Cutter'],
-                    ['slug' => 'renewable_rookie',          'label' => '⚡ Renewable Rookie'],
-                    ['slug' => 'sustainability_scout',      'label' => '🧭 Sustainability Scout'],
-                    ['slug' => 'leaf_leader',               'label' => '🍃 Leaf Leader'],
-                    ['slug' => 'green_visionary',           'label' => '👁 Green Visionary'],
-                    ['slug' => 'eco_hero',                  'label' => '🦸 Eco Hero'],
-                    ['slug' => 'planet_paladin',            'label' => '🪐 Planet Paladin'],
-                    ['slug' => 'guardian_of_earth',         'label' => '🛡 Guardian of Earth'],
-                    ['slug' => 'green_warrior',             'label' => '🌟 Green Warrior'],
-                    ['slug' => 'champion_of_sustainability','label' => '🏆 Champion of Sustainability'],
-                ];
+                $badges = \GreenScore\Badges::all();
                 $first = true;
                 foreach ($badges as $badge):
                 ?>
@@ -146,7 +131,7 @@ $b = BASE_URL;
                              class="d-block rounded shadow"
                              alt="<?= htmlspecialchars($badge['label']) ?>">
                         <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded">
-                            <h5><?= $badge['label'] ?></h5>
+                            <h5><?= e($badge['label']) ?></h5>
                         </div>
                     </div>
                 <?php $first = false; endforeach; ?>

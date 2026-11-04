@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../../includes/init.php';
-include ROOT_PATH . '/includes/nav.php';
 $b = BASE_URL;
 ?>
 <!DOCTYPE html>
@@ -16,6 +15,7 @@ $b = BASE_URL;
 </head>
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
+<?php include ROOT_PATH . '/includes/nav.php'; ?>
 <div class="page-wrapper">
     <div class="container content-wrapper">
         <div class="card card-bg mb-5 text-center p-4">

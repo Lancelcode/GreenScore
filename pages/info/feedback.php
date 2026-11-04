@@ -13,10 +13,8 @@ $user_name  = $_SESSION['username'];
 $user_email = $_SESSION['email'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
-        die('Invalid CSRF token.');
-    }
-    $message = trim($_POST['message'] ?? '');
+    \GreenScore\Csrf::requireValid();
+    $message = is_string($_POST['message'] ?? null) ? trim($_POST['message']) : '';
     if (empty($message)) {
         $_SESSION['toast_warning'] = 'Please enter your feedback before submitting.';
     } else {
@@ -32,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 
-include ROOT_PATH . '/includes/nav.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,6 +42,7 @@ include ROOT_PATH . '/includes/nav.php';
 </head>
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
+<?php include ROOT_PATH . '/includes/nav.php'; ?>
 <div class="page-wrapper">
     <div class="container content-wrapper">
         <h2 class="text-white text-center mb-4">💬 We Value Your Feedback</h2>
@@ -72,7 +70,7 @@ include ROOT_PATH . '/includes/nav.php';
         <h4 class="text-white mb-4">🗃 Public Feedback</h4>
 
         <?php
-        $sql = "SELECT name, email, created_at, message,
+        $sql = "SELECT name, created_at, message,
                        admin_response, admin_username, admin_response_at
                 FROM feedback
                 WHERE visible_to_public = 1
@@ -84,7 +82,6 @@ include ROOT_PATH . '/includes/nav.php';
                 <div class="card card-bg card-body mb-4 shadow-sm">
                     <p class="mb-1">
                         <strong><?= htmlspecialchars($row['name']) ?></strong>
-                        (<?= htmlspecialchars($row['email']) ?>)
                     </p>
                     <small class="text-muted">
                         Asked <?= date('F j, Y, g:i a', strtotime($row['created_at'])) ?>
