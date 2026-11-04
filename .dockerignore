@@ -21,7 +21,3 @@ phpunit.xml
 package.json
 package-lock.json
 playwright.config.*
-CLAUDE.md
-CLAUDE.local.md
-.claude
-.mcp.json
