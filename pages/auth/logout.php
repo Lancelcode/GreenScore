@@ -1,6 +1,14 @@
 <?php
 require_once __DIR__ . '/../../includes/init.php';
 
+// Logging out changes state, so it must be a POST carrying the CSRF token —
+// otherwise any site could log a visitor out with a hidden image link.
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ' . BASE_URL . '/index.php');
+    exit();
+}
+\GreenScore\Csrf::requireValid();
+
 $_SESSION = [];
 
 // Delete the session cookie explicitly

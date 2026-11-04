@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../../includes/init.php';
-include ROOT_PATH . '/includes/nav.php';
 $b = BASE_URL;
 ?>
 <!DOCTYPE html>
@@ -18,6 +17,7 @@ $b = BASE_URL;
 </head>
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg'); color: #333;">
+<?php include ROOT_PATH . '/includes/nav.php'; ?>
 <div class="page-wrapper">
     <div class="container content-wrapper text-center">
         <h1 class="text-white display-4 mb-4">🌍 GreenScore Partnerships</h1>

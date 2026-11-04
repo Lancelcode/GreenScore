@@ -108,4 +108,11 @@ phpunit.phar
 assets/images/*.sql
 composer.phar
 test-results.txt
-composer.lock
+
+# local tooling
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+.mcp.json
+
+.phpunit.cache/

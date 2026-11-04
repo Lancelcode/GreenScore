@@ -1,49 +1,33 @@
 <?php
+use GreenScore\Auth;
+
 if (!function_exists('validate')) {
-    function validate($link, $email = '', $pwd = '') {
-        $errors = [];
-
-        if (empty($email)) {
-            $errors[] = 'Enter your email address.';
-        }
-        if (empty($pwd)) {
-            $errors[] = 'Enter your password.';
-        }
-
-        if (!empty($errors)) {
-            return [false, $errors];
-        }
-
-        $stmt = mysqli_prepare($link,
-            "SELECT id, username, email, password, role FROM new_users WHERE email = ?"
-        );
-        mysqli_stmt_bind_param($stmt, 's', $email);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-
-        if (mysqli_num_rows($result) === 1) {
-            $row = mysqli_fetch_assoc($result);
+    /**
+     * Look up a user by email and check the password.
+     *
+     * @return array{0: bool, 1: array<string, mixed>|list<string>}
+     */
+    function validate(mysqli $link, string $email = '', string $pwd = ''): array
+    {
+        $user = null;
+        if ($email !== '' && $pwd !== '') {
+            $stmt = mysqli_prepare($link,
+                'SELECT id, username, email, password, role, status FROM new_users WHERE email = ? LIMIT 1'
+            );
+            mysqli_stmt_bind_param($stmt, 's', $email);
+            mysqli_stmt_execute($stmt);
+            $user = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt)) ?: null;
             mysqli_stmt_close($stmt);
-
-            if (password_verify($pwd, $row['password'])) {
-                return [true, $row];
-            }
-
-            $errors[] = 'Incorrect password.';
-        } else {
-            mysqli_stmt_close($stmt);
-            $errors[] = 'Email address and password not found.';
         }
-
-        return [false, $errors];
+        return Auth::check($user, $email, $pwd);
     }
 }
 
 if (!function_exists('load')) {
-    function load($page = 'login.php') {
+    function load(string $page = 'login.php'): never
+    {
         $base = defined('BASE_URL') ? BASE_URL : '';
-        $page = ltrim($page, '/');
-        header('Location: ' . $base . '/' . $page);
+        header('Location: ' . $base . '/' . ltrim($page, '/'));
         exit();
     }
 }

@@ -27,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_feedback'])) {
     exit();
 }
 
-include ROOT_PATH . '/includes/nav.php';
 $b      = BASE_URL;
 $result = mysqli_query($link,
     "SELECT id, name, email, message, created_at,
@@ -82,6 +81,7 @@ $result = mysqli_query($link,
 </head>
 <body class="bg-page overlay-60 d-flex flex-column min-vh-100"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
+<?php include ROOT_PATH . '/includes/nav.php'; ?>
 
 <div class="container content-wrapper flex-grow-1">
     <h2 class="text-white text-center mb-5">💬 Community Feedback</h2>

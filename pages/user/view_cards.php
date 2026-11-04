@@ -11,7 +11,7 @@ $b      = BASE_URL;
 $userId = (int) $_SESSION['user_id'];
 
 $stmt = mysqli_prepare($link,
-    "SELECT id, card_number, expiry_date, cardholder_name, cvv
+    "SELECT id, card_last4, expiry_date, cardholder_name
      FROM credit_cards
      WHERE user_id = ?"
 );
@@ -47,7 +47,6 @@ mysqli_close($link);
                         <tr>
                             <th>Card Number</th>
                             <th>Expiry</th>
-                            <th>CVV</th>
                             <th>Cardholder</th>
                             <th>Actions</th>
                         </tr>
@@ -55,19 +54,18 @@ mysqli_close($link);
                     <tbody>
                     <?php foreach ($rows as $row): ?>
                         <tr>
-                            <td>**** **** **** <?= substr($row['card_number'], -4) ?></td>
-                            <td><?= date('d/m/Y', strtotime($row['expiry_date'])) ?></td>
-                            <td><?= htmlspecialchars($row['cvv']) ?></td>
+                            <td><?= e(\GreenScore\Card::mask($row['card_last4'])) ?></td>
+                            <td><?= date('m/Y', strtotime($row['expiry_date'])) ?></td>
                             <td><?= htmlspecialchars($row['cardholder_name']) ?></td>
                             <td>
                                 <button class="btn btn-sm btn-danger"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#delModal<?= $row['id'] ?>">
+                                        data-bs-target="#delModal<?= (int) $row['id'] ?>">
                                     🗑 Delete
                                 </button>
                                 <button class="btn btn-sm btn-warning ms-1"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#editModal<?= $row['id'] ?>">
+                                        data-bs-target="#editModal<?= (int) $row['id'] ?>">
                                     ✏️ Edit
                                 </button>
                             </td>
@@ -98,23 +96,23 @@ mysqli_close($link);
 
 <?php foreach ($rows as $row): ?>
 <!-- Delete Modal — outside table so Bootstrap can position it correctly -->
-<div class="modal fade" id="delModal<?= $row['id'] ?>" tabindex="-1"
-     aria-labelledby="delModalLabel<?= $row['id'] ?>" aria-hidden="true">
+<div class="modal fade" id="delModal<?= (int) $row['id'] ?>" tabindex="-1"
+     aria-labelledby="delModalLabel<?= (int) $row['id'] ?>" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="<?= $b ?>/pages/user/manage_credit_card.php" method="post">
                 <input type="hidden" name="csrf_token"
                        value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                 <input type="hidden" name="action" value="delete">
-                <input type="hidden" name="card_id" value="<?= $row['id'] ?>">
+                <input type="hidden" name="card_id" value="<?= (int) $row['id'] ?>">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="delModalLabel<?= $row['id'] ?>">Confirm Deletion</h5>
+                    <h5 class="modal-title" id="delModalLabel<?= (int) $row['id'] ?>">Confirm Deletion</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     Are you sure you want to delete the card ending in
-                    <strong><?= substr($row['card_number'], -4) ?></strong>?
+                    <strong><?= e($row['card_last4']) ?></strong>?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary"
@@ -127,43 +125,35 @@ mysqli_close($link);
 </div>
 
 <!-- Edit Modal — outside table so Bootstrap can position it correctly -->
-<div class="modal fade" id="editModal<?= $row['id'] ?>" tabindex="-1"
-     aria-labelledby="editModalLabel<?= $row['id'] ?>" aria-hidden="true">
+<div class="modal fade" id="editModal<?= (int) $row['id'] ?>" tabindex="-1"
+     aria-labelledby="editModalLabel<?= (int) $row['id'] ?>" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="<?= $b ?>/pages/user/manage_credit_card.php" method="post">
                 <input type="hidden" name="csrf_token"
                        value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                 <input type="hidden" name="action" value="update">
-                <input type="hidden" name="card_id" value="<?= $row['id'] ?>">
+                <input type="hidden" name="card_id" value="<?= (int) $row['id'] ?>">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel<?= $row['id'] ?>">Edit Card</h5>
+                    <h5 class="modal-title" id="editModalLabel<?= (int) $row['id'] ?>">Edit Card</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <p class="small text-muted">
+                        Card ending <strong><?= e($row['card_last4']) ?></strong>. To change the
+                        number, delete this card and add a new one.
+                    </p>
                     <div class="mb-3">
-                        <label class="form-label">Card Number</label>
-                        <input type="text" class="form-control" name="card_number"
-                               value="<?= htmlspecialchars($row['card_number']) ?>"
-                               maxlength="16" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Expiry Date</label>
-                        <input type="date" class="form-control" name="expiry_date"
-                               value="<?= htmlspecialchars($row['expiry_date']) ?>"
+                        <label class="form-label" for="expiry<?= (int) $row['id'] ?>">Expiry (month)</label>
+                        <input type="month" class="form-control" name="expiry_date" id="expiry<?= (int) $row['id'] ?>"
+                               value="<?= e(substr($row['expiry_date'], 0, 7)) ?>"
                                required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">CVV</label>
-                        <input type="text" class="form-control" name="cvv"
-                               value="<?= htmlspecialchars($row['cvv']) ?>"
-                               maxlength="4" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Cardholder Name</label>
-                        <input type="text" class="form-control" name="card_name"
-                               value="<?= htmlspecialchars($row['cardholder_name']) ?>"
+                        <label class="form-label" for="holder<?= (int) $row['id'] ?>">Cardholder Name</label>
+                        <input type="text" class="form-control" name="card_name" id="holder<?= (int) $row['id'] ?>"
+                               value="<?= e($row['cardholder_name']) ?>"
                                maxlength="100" required>
                     </div>
                 </div>

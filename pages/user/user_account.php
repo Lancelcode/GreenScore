@@ -104,21 +104,27 @@ $phone    = htmlspecialchars($row['phone_number']   ?? '—');
                                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                         <input type="hidden" name="action" value="add">
 
+                        <div class="col-12">
+                            <p class="small text-muted mb-0">
+                                Demo feature: only the last four digits are stored, and the
+                                security code is never asked for. Use a test number such as
+                                4111 1111 1111 1111.
+                            </p>
+                        </div>
                         <div class="col-md-6">
-                            <label class="form-label">Card Number</label>
-                            <input type="text" class="form-control" name="card_number" required>
+                            <label class="form-label" for="card_number">Card Number</label>
+                            <input type="text" class="form-control" name="card_number" id="card_number"
+                                   inputmode="numeric" autocomplete="cc-number" maxlength="23" required>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Expiry Date</label>
-                            <input type="date" class="form-control" name="expiry_date" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">CVV</label>
-                            <input type="text" class="form-control" name="cvv" required>
+                        <div class="col-md-6">
+                            <label class="form-label" for="expiry_date">Expiry (month)</label>
+                            <input type="month" class="form-control" name="expiry_date" id="expiry_date"
+                                   autocomplete="cc-exp" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Cardholder Name</label>
-                            <input type="text" class="form-control" name="card_name" required>
+                            <label class="form-label" for="card_name">Cardholder Name</label>
+                            <input type="text" class="form-control" name="card_name" id="card_name"
+                                   autocomplete="cc-name" maxlength="100" required>
                         </div>
                         <div class="col-md-6">
                             <button type="submit" class="btn btn-success w-100">💾 Add Card</button>

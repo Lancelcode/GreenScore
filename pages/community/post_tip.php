@@ -8,14 +8,12 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
-        die('Invalid CSRF token.');
-    }
+    \GreenScore\Csrf::requireValid();
 
-    $message = trim($_POST['message'] ?? '');
+    $message = \GreenScore\Validator::tipMessage($_POST['message'] ?? null);
     $user_id = (int) $_SESSION['user_id'];
 
-    if (!empty($message) && strlen($message) <= 500) {
+    if ($message !== null) {
         $stmt = mysqli_prepare($link,
             "INSERT INTO community_tips (user_id, message) VALUES (?, ?)"
         );
@@ -24,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mysqli_stmt_close($stmt);
         $_SESSION['toast_success'] = 'Your tip has been posted!';
     } else {
-        $_SESSION['toast_warning'] = 'Please enter a message before posting.';
+        $_SESSION['toast_warning'] = 'Please enter a tip of up to 500 characters.';
     }
 }
 

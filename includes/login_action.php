@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/init.php';
-require_once 'connect_db.php';
-require_once 'login_tools.php';
+require_once __DIR__ . '/connect_db.php';
+require_once __DIR__ . '/login_tools.php';
 
 $errors = [];
 
@@ -10,12 +10,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-    $errors[] = 'Invalid CSRF token.';
+if (!\GreenScore\Csrf::isValid($_POST['csrf_token'] ?? null)) {
+    $errors[] = 'Your session expired. Please try again.';
 }
 
-$email    = trim($_POST['email']    ?? '');
-$password = trim($_POST['password'] ?? '');
+$email    = is_string($_POST['email'] ?? null) ? trim($_POST['email']) : '';
+// Passwords are not trimmed: leading/trailing spaces are part of the password.
+$password = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
 
 if (empty($email))    $errors[] = 'Email is required.';
 if (empty($password)) $errors[] = 'Password is required.';
@@ -98,6 +99,6 @@ if (empty($errors) && !$locked_out) {
 }
 
 mysqli_close($link);
-$_SESSION['login_error'] = implode('<br>', $errors);
+$_SESSION['login_error'] = implode(' ', $errors);
 header('Location: ' . BASE_URL . '/pages/auth/login.php');
 exit();

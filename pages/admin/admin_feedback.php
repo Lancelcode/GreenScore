@@ -20,7 +20,6 @@ $result = mysqli_query($link,
      ORDER BY created_at DESC"
 );
 
-include ROOT_PATH . '/includes/nav.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,6 +39,7 @@ include ROOT_PATH . '/includes/nav.php';
 </head>
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
+<?php include ROOT_PATH . '/includes/nav.php'; ?>
 
 <div class="container content-wrapper">
     <div class="auth-wrapper">
@@ -55,27 +55,27 @@ include ROOT_PATH . '/includes/nav.php';
                         <div class="feedback-item">
                             <div class="d-flex justify-content-between align-items-start mb-1">
                                 <strong><?= htmlspecialchars($row['name']) ?></strong>
-                                <small class="text-muted"><?= $row['created_at'] ?></small>
+                                <small class="text-muted"><?= e($row['created_at']) ?></small>
                             </div>
                             <small class="text-muted"><?= htmlspecialchars($row['email']) ?></small>
                             <p class="mt-2 mb-2"><?= nl2br(htmlspecialchars($row['message'])) ?></p>
 
                             <div class="form-check form-switch mb-2">
                                 <input class="form-check-input" type="checkbox" role="switch"
-                                       name="visible_to_public[<?= $row['id'] ?>]"
-                                       id="vis<?= $row['id'] ?>"
+                                       name="visible_to_public[<?= (int) $row['id'] ?>]"
+                                       id="vis<?= (int) $row['id'] ?>"
                                     <?= $row['visible_to_public'] ? 'checked' : '' ?>>
-                                <label class="form-check-label fw-semibold" for="vis<?= $row['id'] ?>">
+                                <label class="form-check-label fw-semibold" for="vis<?= (int) $row['id'] ?>">
                                     Publicly Visible
                                 </label>
                             </div>
 
-                            <label for="resp<?= $row['id'] ?>" class="form-label small fw-semibold">
+                            <label for="resp<?= (int) $row['id'] ?>" class="form-label small fw-semibold">
                                 ✍️ Admin Response
                             </label>
                             <textarea class="form-control form-control-sm"
-                                      name="admin_response[<?= $row['id'] ?>]"
-                                      id="resp<?= $row['id'] ?>"
+                                      name="admin_response[<?= (int) $row['id'] ?>]"
+                                      id="resp<?= (int) $row['id'] ?>"
                                       rows="2"><?= htmlspecialchars($row['admin_response'] ?? '') ?></textarea>
                         </div>
                     <?php endwhile; ?>

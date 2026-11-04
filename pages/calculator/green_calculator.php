@@ -13,18 +13,7 @@ $award = $emoji = $message = '';
 $total = $shortfall = $cost = 0;
 $green = $amber = $red = 0;
 
-$measures = [
-    "Waste Reduction",
-    "Renewable Energy Usage",
-    "Water Conservation",
-    "Sustainable Supply Chain",
-    "Eco-friendly Products/Services",
-    "Energy-Efficient Infrastructure",
-    "Transportation Sustainability",
-    "Community Engagement",
-    "Carbon Offsetting",
-    "Transparency and Reporting",
-];
+$measures = \GreenScore\Scoring::MEASURES;
 
 $explanations = [
     "Waste Reduction"                 => "Waste reduction assesses how actively a company minimises its total waste output through operational improvements, material efficiency, recycling programmes, and waste prevention strategies.\n\nExamples: Conducting annual waste audits, setting formal targets (5–10% per year), composting organic waste, eliminating single-use plastics, transitioning to digital documentation.\n\nImpact: Reduces landfill methane emissions, decreases environmental contamination, and lowers demand for raw material extraction.",
@@ -39,42 +28,38 @@ $explanations = [
     "Transparency and Reporting"      => "Evaluates how openly a company communicates its environmental impact, targets, and progress.\n\nExamples: Annual sustainability reports (GRI, CDP standards), greenhouse gas inventories, science-based targets.\n\nImpact: Builds stakeholder trust and drives internal accountability.",
 ];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
-    foreach ($measures as $index => $m) {
-        $score  = intval($_POST["measure_$index"]);
-        $total += $score;
-        if ($score === 10)    $green++;
-        elseif ($score === 5) $amber++;
-        else                  $red++;
-    }
+$form_error = '';
+$submitted  = $_SERVER['REQUEST_METHOD'] === 'POST';
+$points     = null;
 
-    $shortfall = 100 - $total;
-    $cost      = $shortfall * 10;
+if ($submitted) {
+    \GreenScore\Csrf::requireValid();
+    $points = \GreenScore\Scoring::parseAnswers($_POST, count($measures));
+}
 
-    if ($total >= 80) {
-        $award = "Certificate of Gold 🥇"; $emoji = "🥇";
-        $message = "Outstanding! You're leading the way in sustainability.";
-    } elseif ($total >= 65) {
-        $award = "Certificate of Silver 🥈"; $emoji = "🥈";
-        $message = "Great job! You're making a positive environmental impact.";
-    } elseif ($total > 50) {
-        $award = "Certificate of Bronze 🥉"; $emoji = "🥉";
-        $message = "Nice effort! Keep building sustainable habits.";
-    } else {
-        $award = "Certificate of Participation 👏";
-        if ($total >= 41)     { $emoji = "🌟"; $message = "You're almost there! Just a few more changes will go a long way."; }
-        elseif ($total >= 26) { $emoji = "💪"; $message = "You're making progress. Small steps matter — keep going!"; }
-        else                  { $emoji = "🌱"; $message = "Every journey starts somewhere — you've taken that first step!"; }
-    }
+if ($submitted && $points === null) {
+    http_response_code(422);
+    $form_error = 'Please choose Green, Amber or Red for every measure.';
+} elseif ($points !== null) {
+    $result    = \GreenScore\Scoring::evaluate($points);
+    $total     = $result['total'];
+    $green     = $result['green'];
+    $amber     = $result['amber'];
+    $red       = $result['red'];
+    $award     = $result['award'];
+    $emoji     = $result['emoji'];
+    $message   = $result['message'];
+    $shortfall = $result['shortfall'];
+    $cost      = $result['cost'];
 
-    $user_id = $_SESSION['user_id'];
+    $user_id = (int) $_SESSION['user_id'];
     $stmt    = mysqli_prepare($link,
         "INSERT INTO green_calculator_results
             (user_id, total_score, green_count, amber_count, red_count,
              award_level, emoji, feedback_message, shortfall, donation_cost, submitted_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())"
     );
-    mysqli_stmt_bind_param($stmt, 'iiiissssis',
+    mysqli_stmt_bind_param($stmt, 'iiiiisssii',
         $user_id, $total, $green, $amber, $red,
         $award, $emoji, $message, $shortfall, $cost
     );
@@ -109,9 +94,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             <div class="col-md-8">
                 <h1 class="text-success mb-4">🌿 Green Calculator</h1>
                 <p class="lead">Evaluate your sustainability impact by selecting your practices below.</p>
+                <?php if ($form_error): ?>
+                    <div class="alert alert-danger" role="alert"><?= e($form_error) ?></div>
+                <?php endif; ?>
                 <form method="POST">
-                    <input type="hidden" name="csrf_token"
-                           value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                    <?= \GreenScore\Csrf::field() ?>
                     <?php foreach ($measures as $index => $measure):
                         $modalId = "info" . preg_replace('/[^A-Za-z0-9]/', '', $measure);
                     ?>
@@ -147,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                         </div>
                     <?php endforeach; ?>
 
-                    <button class="btn btn-success btn-block mt-3" name="submit">
+                    <button type="submit" class="btn btn-success mt-3" name="submit">
                         Calculate My Score 🌍
                     </button>
                     <div class="mt-3">
@@ -193,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title animate__animated animate__rubberBand">
-                    <?= $emoji ?> <?= htmlspecialchars($award) ?>
+                    <?= e($emoji) ?> <?= htmlspecialchars($award) ?>
                 </h5>
             </div>
             <div class="modal-body">
@@ -224,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 
                 <?php if ($shortfall > 0): ?>
                     <p class="text-danger">
-                        <?= $emoji ?> <strong><?= htmlspecialchars($message) ?></strong><br>
+                        <?= e($emoji) ?> <strong><?= htmlspecialchars($message) ?></strong><br>
                         You're <strong><?= $shortfall ?> points</strong> short.
                         Consider donating <strong>£<?= $cost ?></strong>.
                     </p>
@@ -233,10 +220,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 <?php endif; ?>
             </div>
             <div class="modal-footer d-flex flex-wrap justify-content-between gap-2">
-                <a href="<?= $b ?>/pages/calculator/certificate_preview.php?id=<?= $last_cert_id ?>"
+                <a href="<?= $b ?>/pages/calculator/certificate_preview.php?id=<?= (int) $last_cert_id ?>"
                    class="btn btn-outline-success">📄 Download Certificate</a>
                 <?php if ($shortfall > 0): ?>
-                    <a href="<?= $b ?>/pages/calculator/buy_points.php?shortfall=<?= $shortfall ?>&cost=<?= $cost ?>"
+                    <a href="<?= $b ?>/pages/calculator/buy_points.php?shortfall=<?= (int) $shortfall ?>"
                        class="btn btn-outline-warning">💸 Buy Points</a>
                 <?php endif; ?>
                 <a href="<?= $b ?>/pages/community/community.php"

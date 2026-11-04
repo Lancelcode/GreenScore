@@ -145,8 +145,10 @@ $b = BASE_URL;
                             <span>👋 Hello, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong></span>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-outline-light btn-sm"
-                               href="<?= $b ?>/pages/auth/logout.php">Logout</a>
+                            <form method="post" action="<?= $b ?>/pages/auth/logout.php" class="d-inline">
+                                <?= \GreenScore\Csrf::field() ?>
+                                <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+                            </form>
                         </li>
                     <?php else: ?>
                         <li class="nav-item">

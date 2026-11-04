@@ -8,15 +8,13 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
-        die('Invalid CSRF token.');
-    }
+    \GreenScore\Csrf::requireValid();
 
     $tip_id  = (int) ($_POST['tip_id']  ?? 0);
-    $message = trim($_POST['message']   ?? '');
+    $message = \GreenScore\Validator::tipMessage($_POST['message'] ?? null);
     $user_id = (int) $_SESSION['user_id'];
 
-    if (!empty($message) && $tip_id > 0 && strlen($message) <= 500) {
+    if ($message !== null && $tip_id > 0) {
         $stmt = mysqli_prepare($link,
             "UPDATE community_tips SET message = ? WHERE id = ? AND user_id = ?"
         );

@@ -1,62 +1,63 @@
 <?php
 require_once __DIR__ . '/../../includes/init.php';
 
-if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_GET['shortfall'])) {
-    header('Location: ' . BASE_URL . '/pages/calculator/green_calculator.php');
+use GreenScore\Scoring;
+
+if (!isset($_SESSION['username'], $_SESSION['user_id'])) {
+    header('Location: ' . BASE_URL . '/pages/auth/login.php');
     exit();
 }
 
-$b         = BASE_URL;
-$shortfall = max(0, min(100, (int) $_GET['shortfall']));
-$cost      = number_format($shortfall * 10, 2); // calculated server-side, not from GET
-$username  = $_SESSION['username'];
-$user_id   = (int) $_SESSION['user_id'];
+require ROOT_PATH . '/includes/connect_db.php';
 
-$donated       = false;
-$donate_error  = false;
+$b        = BASE_URL;
+$username = $_SESSION['username'];
+$user_id  = (int) $_SESSION['user_id'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['donate'])) {
-    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
-        die('Invalid CSRF token.');
-    }
+// The shortfall always comes from the user's latest stored result — never
+// from the query string, which a user could edit to pay less.
+$stmt = mysqli_prepare($link,
+    "SELECT id, shortfall FROM green_calculator_results
+     WHERE user_id = ? ORDER BY submitted_at DESC, id DESC LIMIT 1"
+);
+mysqli_stmt_bind_param($stmt, 'i', $user_id);
+mysqli_stmt_execute($stmt);
+$latest = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt)) ?: null;
+mysqli_stmt_close($stmt);
 
-    require ROOT_PATH . '/includes/connect_db.php';
+$last_id      = $latest ? (int) $latest['id'] : 0;
+$shortfall    = $latest ? Scoring::clampShortfall((int) $latest['shortfall']) : 0;
+$cost_value   = Scoring::donationCost($shortfall);
+$cost         = number_format($cost_value, 2);
+$donated      = false;
+$donate_error = $latest === null;
+$nothing_due  = $latest !== null && $shortfall === 0;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['donate']) && !$donate_error && !$nothing_due) {
+    \GreenScore\Csrf::requireValid();
 
     $award         = 'Certificate of Gold 🥇';
     $emoji         = '🥇';
     $message       = "Thank you for your contribution! You've unlocked full recognition!";
     $new_shortfall = 0;
 
+    // Demo only: no money changes hands. A real deployment would confirm a
+    // payment with a payment provider before upgrading the certificate.
     $stmt = mysqli_prepare($link,
-        "SELECT id FROM green_calculator_results
-         WHERE user_id = ? ORDER BY submitted_at DESC LIMIT 1"
+        "UPDATE green_calculator_results
+         SET award_level = ?, emoji = ?, feedback_message = ?,
+             shortfall = ?, donation_cost = ?, submitted_at = NOW()
+         WHERE id = ? AND user_id = ?"
     );
-    mysqli_stmt_bind_param($stmt, 'i', $user_id);
+    mysqli_stmt_bind_param($stmt, 'sssiiii',
+        $award, $emoji, $message, $new_shortfall, $cost_value, $last_id, $user_id
+    );
     mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
     mysqli_stmt_close($stmt);
-
-    if ($row = mysqli_fetch_assoc($result)) {
-        $last_id = (int) $row['id'];
-        $stmt = mysqli_prepare($link,
-            "UPDATE green_calculator_results
-             SET award_level = ?, emoji = ?, feedback_message = ?,
-                 shortfall = ?, donation_cost = ?, submitted_at = NOW()
-             WHERE id = ?"
-        );
-        $cost_float = (float) str_replace(',', '', $cost);
-        mysqli_stmt_bind_param($stmt, 'sssidi',
-            $award, $emoji, $message, $new_shortfall, $cost_float, $last_id
-        );
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
-        $donated = true;
-    } else {
-        $donate_error = true;
-    }
-
-    mysqli_close($link);
+    $donated = true;
 }
+
+mysqli_close($link);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -98,6 +99,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['donate'])) {
                     <a href="<?= $b ?>/pages/calculator/green_calculator.php">Green Calculator</a> first.
                 </div>
 
+            <?php elseif ($nothing_due): ?>
+                <div class="alert alert-success mt-3">
+                    ✅ Your latest result has no shortfall — there is nothing to top up.
+                </div>
+                <a href="<?= $b ?>/pages/calculator/certificate_history.php"
+                   class="btn btn-outline-secondary mt-3">📜 Certificate History</a>
+
             <?php else: ?>
                 <p class="mt-3">
                     You're currently <strong><?= $shortfall ?> points</strong> short of a perfect score.
@@ -117,8 +125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['donate'])) {
                 </div>
 
                 <form method="POST" class="mt-4">
-                    <input type="hidden" name="csrf_token"
-                           value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                    <?= \GreenScore\Csrf::field() ?>
+                    <p class="small text-muted">This is a demonstration — no payment is taken.</p>
                     <button type="submit" name="donate" class="btn btn-warning btn-lg px-5">
                         ✅ Confirm £<?= $cost ?> Contribution
                     </button>

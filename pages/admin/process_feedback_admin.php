@@ -13,8 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
-    die('Invalid CSRF token.');
+\GreenScore\Csrf::requireValid();
+
+$responses = $_POST['admin_response'] ?? [];
+$visible   = $_POST['visible_to_public'] ?? [];
+if (!is_array($responses) || !is_array($visible)) {
+    http_response_code(400);
+    exit('Invalid request.');
 }
 
 $stmt = mysqli_prepare($link,
@@ -26,10 +31,10 @@ $stmt = mysqli_prepare($link,
      WHERE id = ?"
 );
 
-foreach ($_POST['admin_response'] as $id => $response) {
+foreach ($responses as $id => $response) {
     $id         = (int) $id;
-    $response   = trim($response);
-    $is_public  = isset($_POST['visible_to_public'][$id]) ? 1 : 0;
+    $response   = is_string($response) ? trim($response) : '';
+    $is_public  = isset($visible[$id]) ? 1 : 0;
     $admin_user = $_SESSION['username'];
 
     mysqli_stmt_bind_param($stmt, 'issi', $is_public, $response, $admin_user, $id);

@@ -6,9 +6,7 @@ $logged_in_user = $_SESSION['user_id'] ?? null;
 $b              = BASE_URL;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_tip'])) {
-    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
-        die('Invalid CSRF token.');
-    }
+    \GreenScore\Csrf::requireValid();
     if (isset($_POST['delete_id']) && ctype_digit((string) $_POST['delete_id'])) {
         $deleteId = (int) $_POST['delete_id'];
         $stmt = mysqli_prepare($link,
@@ -23,12 +21,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_tip'])) {
     exit();
 }
 
-include ROOT_PATH . '/includes/nav.php';
 
 $limit  = 5;
-$page   = isset($_GET['page']) ? max((int) $_GET['page'], 1) : 1;
-$offset = ($page - 1) * $limit;
-$search = trim($_GET['search'] ?? '');
+$page   = \GreenScore\Validator::pageNumber($_GET['page'] ?? null);
+$offset = \GreenScore\Validator::offset($page, $limit);
+$search = is_string($_GET['search'] ?? null) ? mb_substr(trim($_GET['search']), 0, 100) : '';
 
 if ($search !== '') {
     $like = '%' . $search . '%';
@@ -41,7 +38,7 @@ if ($search !== '') {
     mysqli_stmt_close($count_stmt);
 
     $stmt = mysqli_prepare($link,
-        "SELECT ct.id, ct.user_id, ct.message, ct.created_at, u.username, u.email
+        "SELECT ct.id, ct.user_id, ct.message, ct.created_at, u.username
          FROM community_tips ct
          JOIN new_users u ON ct.user_id = u.id
          WHERE ct.message LIKE ?
@@ -54,7 +51,7 @@ if ($search !== '') {
     $total        = (int) mysqli_fetch_assoc($count_result)['total'];
 
     $stmt = mysqli_prepare($link,
-        "SELECT ct.id, ct.user_id, ct.message, ct.created_at, u.username, u.email
+        "SELECT ct.id, ct.user_id, ct.message, ct.created_at, u.username
          FROM community_tips ct
          JOIN new_users u ON ct.user_id = u.id
          ORDER BY ct.created_at DESC
@@ -63,7 +60,7 @@ if ($search !== '') {
     mysqli_stmt_bind_param($stmt, 'ii', $limit, $offset);
 }
 
-$total_pages = (int) ceil($total / $limit);
+$total_pages = \GreenScore\Validator::totalPages($total, $limit);
 mysqli_stmt_execute($stmt);
 $results = mysqli_stmt_get_result($stmt);
 ?>
@@ -78,6 +75,7 @@ $results = mysqli_stmt_get_result($stmt);
 </head>
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
+<?php include ROOT_PATH . '/includes/nav.php'; ?>
 <div class="page-wrapper">
     <div class="container content-wrapper">
         <h1 class="text-white text-center mb-4">📝 Sustainability Community Board</h1>
@@ -150,11 +148,10 @@ $results = mysqli_stmt_get_result($stmt);
                             <p class="mb-1">🟢 <?= htmlspecialchars($row['message']) ?></p>
                             <small class="text-muted">
                                 By <?= htmlspecialchars($row['username']) ?>
-                                (<?= htmlspecialchars($row['email']) ?>)
                                 • <?= date('F j, Y, g:i a', strtotime($row['created_at'])) ?>
                             </small>
 
-                            <?php if ($logged_in_user == $row['user_id']): ?>
+                            <?php if ($logged_in_user !== null && (int) $logged_in_user === (int) $row['user_id']): ?>
                                 <div class="mt-2">
                                     <button class="btn btn-sm btn-outline-primary"
                                             data-bs-toggle="modal"
@@ -198,7 +195,7 @@ $results = mysqli_stmt_get_result($stmt);
                 </ul>
             </nav>
         <?php endif; ?>
-    </div>m   
+    </div>
 
     <?php include ROOT_PATH . '/includes/footer.php'; ?>
 </div>

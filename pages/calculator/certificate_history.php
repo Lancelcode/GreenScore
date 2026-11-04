@@ -110,7 +110,6 @@ if ($level_filter !== '') {
 mysqli_stmt_execute($data_stmt);
 $results = mysqli_stmt_get_result($data_stmt);
 
-include ROOT_PATH . '/includes/nav.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -153,6 +152,7 @@ include ROOT_PATH . '/includes/nav.php';
 </head>
 <body class="bg-page overlay-50"
       style="background-image: url('<?= $b ?>/assets/images/forest-hero.jpg');">
+<?php include ROOT_PATH . '/includes/nav.php'; ?>
 <div class="page-wrapper d-flex flex-column min-vh-100">
     <div class="container content-wrapper">
         <h1 class="text-white text-center mb-4">📜 Certificate History</h1>

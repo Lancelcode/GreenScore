@@ -1,225 +1,202 @@
-
 <div align="center">
 
-<img src="assets/favicon.svg" alt="GreenScore Logo" width="90" height="90" />
+<img src="assets/favicon.svg" alt="GreenScore logo" width="90" height="90" />
 
-# 🌱 GreenScore
+# GreenScore
 
-**Sustainability Tracking & Certification Web Application**
+**Sustainability scoring and certification for organisations**
 
-[![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/)
-[![MySQL](https://img.shields.io/badge/MySQL-MariaDB-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
-[![PHPUnit](https://img.shields.io/badge/PHPUnit-11.5-366488?style=for-the-badge&logo=php&logoColor=white)](https://phpunit.de/)
-[![Tests](https://img.shields.io/badge/Tests-42%20passing-198754?style=for-the-badge)](#-testing)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
-
-*Empowering organisations to measure, track, and showcase their environmental impact — with structured scoring, digital certificates, and community engagement.*
-
-[🚀 Getting Started](#%EF%B8%8F-installation) · [✨ Features](#-key-features) · [🧪 Tests](#-testing) · [🛡️ Security](#%EF%B8%8F-security) · [🗄️ Database](#%EF%B8%8F-database)
+[![CI](https://github.com/Lancelcode/GreenScore/actions/workflows/ci.yml/badge.svg)](https://github.com/Lancelcode/GreenScore/actions/workflows/ci.yml)
+![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
+![MariaDB](https://img.shields.io/badge/MariaDB-11.4-003545?logo=mariadb&logoColor=white)
+![Bootstrap 5.3](https://img.shields.io/badge/Bootstrap-5.3-7952B3?logo=bootstrap&logoColor=white)
+[![Licence: MIT](https://img.shields.io/badge/Licence-MIT-blue)](LICENSE)
 
 </div>
 
 ---
 
-## 📌 About the Project
+## What GreenScore does
 
-**GreenScore** is a full-stack sustainability platform built with PHP and MySQL. Organisations complete a structured environmental assessment across **10 categories**, earn one of **14 progressive badge levels**, and receive official downloadable **certificates** — Gold, Silver, Bronze, or Participation — based on their cumulative performance.
+GreenScore helps an organisation measure how sustainable its everyday practices are and
+shows its progress over time.
 
-The platform includes a community tip board, a user feedback system, a secure contribution flow for upgrading certificates, a comprehensive admin dashboard, dark mode, and a full toast notification system — all built with a strong emphasis on security best practices.
+- **Green Calculator.** A ten-question assessment covering waste, energy, water, supply
+  chain, products, buildings, transport, community, carbon offsetting and reporting. Each
+  answer is rated Green (10 points), Amber (5) or Red (0), giving a score out of 100.
+- **Certificates.** Each assessment earns Gold (80+), Silver (65–79), Bronze (51–64) or
+  Participation, issued as a printable certificate with a reference number.
+- **Badges.** Fourteen badge levels, from *Green Starter* to *Champion of Sustainability*,
+  based on the total number of Green answers across all assessments.
+- **Community board.** Members share practical tips; the board can be searched and paged.
+- **Feedback.** Members send feedback, and admins reply and choose what is published.
+- **Admin area.** Manage user roles and account status, edit details, reset passwords and
+  moderate feedback.
 
-> 🎓 Developed as part of the **Graded Unit 2 Software Development** assessment at **Edinburgh College** — Academic Year 2024/2025.
+> Originally built for the Graded Unit 2 Software Development assessment at Edinburgh
+> College (2024/25), then containerised, security-reviewed and given automated tests.
 
----
+## Screenshots
 
-## ✨ Key Features
+> _Screenshots to be added._
+>
+> | Home | Green Calculator | Certificate |
+> |---|---|---|
+> | `docs/screenshots/home.png` | `docs/screenshots/calculator.png` | `docs/screenshots/certificate.png` |
 
-| Feature | Description |
-|---|---|
-| 🔐 Authentication | Registration, login, logout, password reset, session-based role management |
-| 🧮 Green Calculator | 10-category assessment rated RED / AMBER / GREEN — score out of 100 |
-| 🏅 14 Badge Levels | Progressive badges from Green Starter to Champion of Sustainability |
-| 📄 Certificates | Gold / Silver / Bronze / Participation — real submission date, company name, certificate ref number, print-to-PDF |
-| 📜 Certificate History | Responsive card layout — colour-coded by award, score bar, filter by level, sort by date |
-| 💸 Buy Points | Contribute to close a score gap and upgrade a certificate to Gold |
-| 📊 My Impact | Personal dashboard — badge level, green answer count, contribution total, progress bar |
-| 📝 Community Board | Paginated tip board with keyword search, character counter, create/edit/delete per user |
-| 📬 Feedback System | User submission with admin response panel and public visibility toggle |
-| 👥 Admin Dashboard | Role/status management, user editing, feedback moderation |
-| 🌙 Dark Mode | Full dark mode with `localStorage` persistence across page navigation |
-| 🔔 Toast Notifications | Dismissible floating toasts sitewide — success, error, warning, info |
-
----
-
-## 🛡️ Security
-
-Security was a core design priority throughout development:
-
-| Protection | Implementation |
-|---|---|
-| Password hashing | `password_hash()` with bcrypt — auto-salted, unique per user |
-| SQL injection | Prepared statements with bound parameters across all 44 PHP files |
-| CSRF protection | Token generated once per session in `init.php`, validated on every state-changing form |
-| Session fixation | `session_regenerate_id(true)` immediately on login; periodic regeneration every 15 min |
-| Idle timeout | Session destroyed after 30 minutes of inactivity |
-| Login rate limiting | IP blocked after 5 failed attempts in 15 minutes — recorded in `login_attempts` table |
-| Password complexity | Min 8 chars, uppercase + lowercase + number required, common passwords blocked |
-| Cookie flags | `HttpOnly`, `SameSite=Strict` on session cookie |
-| Security headers | `X-Frame-Options: DENY`, `X-Content-Type-Options`, `Referrer-Policy`, `X-XSS-Protection`, `Permissions-Policy` |
-| Role-based access | Admin routes return HTTP 403 if accessed without correct session role |
-| Output sanitisation | All user data escaped with `htmlspecialchars()` before rendering |
-| `.htaccess` | Blocks direct GET to `includes/`, blocks `.sql/.env/.log` files, custom 403/404 pages |
-
----
-
-## Tech Stack
+## Tech stack
 
 | Layer | Technology |
 |---|---|
-| Backend | PHP 8.2 |
-| Database | MySQL / MariaDB via XAMPP |
-| Frontend | HTML5, CSS3, JavaScript (ES6) |
-| UI Framework | Bootstrap 5.3 |
-| Icons | Font Awesome 6.4 |
-| Testing | PHPUnit 11.5 (via phar) |
-| Dev Environment | XAMPP, phpMyAdmin, PHPStorm |
+| Language | PHP 8.2+ (developed and containerised on 8.3) |
+| Database | MariaDB 11.4 (MySQL 8 also works) via `mysqli` prepared statements |
+| Web server | Apache 2.4 with `mod_rewrite` |
+| Front end | HTML5, CSS3, vanilla JavaScript, Bootstrap 5.3, Font Awesome 6 |
+| Tests | PHPUnit 11 |
+| Tooling | Docker and Docker Compose, GitHub Actions |
 
----
+## Architecture
 
-## Database
-
-Six tables with foreign key constraints and cascading deletes:
-
-| Table | Purpose |
-|---|---|
-| `new_users` | Accounts, roles (`admin`/`user`), statuses, company details |
-| `green_calculator_results` | Scores, award levels, badge data, donation records |
-| `community_tips` | User-submitted tips with ownership |
-| `feedback` | Messages, admin responses, public visibility flag |
-| `credit_cards` | Saved card details per user |
-| `login_attempts` | IP-based rate limiting records |
-
-The full schema with seed data is available at [`database/gradedunit.sql`](database/gradedunit.sql).
-
----
-
-## Project Structure
+GreenScore is a classic multi-page PHP application: each page is a PHP script that handles
+its own form submission and renders HTML. There is no framework; shared behaviour lives in
+two places:
 
 ```
-/
-├── index.php                    ← Home page
-├── style.css                    ← Global stylesheet (CSS variables, dark mode, responsive)
-├── .htaccess                    ← Security rules, error routing
-├── 403.php / 404.php            ← Custom error pages
-├── assets/
-│   ├── favicon.svg
-│   ├── images/                  ← Backgrounds, 14 badge illustrations, partner logos
-│   └── documents/               ← Downloadable PDF guides
-├── includes/
-│   ├── init.php                 ← Session bootstrap, security headers, CSRF, BASE_URL
-│   ├── connect_db.php           ← Database connection
-│   ├── nav.php                  ← Navigation (active highlighting, dark mode toggle)
-│   ├── footer.php               ← Toast system, back-to-top, dark mode JS
-│   ├── head.php                 ← Favicon, theme-color, stylesheet links
-│   ├── helpers.php              ← isActive(), renderEditButton(), renderRoleStatusForms()
-│   ├── login_tools.php          ← validate() with password_verify
-│   ├── login_action.php         ← Login POST handler with rate limiting
-│   └── modals.php               ← Register/login modal components
-├── pages/
-│   ├── auth/                    ← login, logout, register, register_action, forgot_password
-│   ├── admin/                   ← admin_feedback, manage_users, edit_user, public_feedback, process_feedback_admin
-│   ├── calculator/              ← green_calculator, certificate_history, certificate_preview, buy_points
-│   ├── community/               ← community, post_tip, edit_tip, delete_tip, clear_tips
-│   ├── user/                    ← user_account, my_impact, view_cards, manage_credit_card
-│   └── info/                    ← about, partner, privacy, terms, green_resources, feedback, greenscore_copyright
-├── database/
-│   └── gradedunit.sql           ← Full schema with seed data
-└── tests/
-    ├── LoginTest.php
-    ├── GreenCalculatorTest.php
-    ├── CommunityTipsTest.php
-    ├── PaymentTest.php
-    └── fake_login_tools.php     ← Session simulation helper for testing
+Browser ──► Apache (.htaccess rules) ──► pages/*.php ──► includes/  (bootstrap, layout, DB connection)
+                                                  │
+                                                  └──► src/       (business rules, unit tested)
+                                                          │
+                                                       MariaDB
 ```
 
----
+- **`includes/`**: request bootstrap (`init.php`: session hardening, security headers,
+  CSRF token, configuration), the database connection and the shared layout (`head`, `nav`,
+  `footer`).
+- **`src/`**: framework-free classes holding the rules that matter, kept apart from HTML
+  and SQL so they can be unit tested:
+  - `Scoring`: calculator answers, totals, award levels, shortfall and suggested contribution
+  - `Badges`: the fourteen badge levels
+  - `Validator`: registration, password policy, community tips and pagination
+  - `Auth`: credential and account-status checks
+  - `Card`: saved-card validation (Luhn check, expiry); only the last four digits are kept
+  - `Csrf`, `Env`: CSRF tokens and environment configuration
+- **`pages/`**: one folder per area: `auth`, `calculator`, `community`, `user`, `admin`, `info`.
+- **`database/gradedunit.sql`**: schema plus demo data.
 
-## Testing
+### Security measures
 
-**42 tests — 63 assertions — all passing**
+- All SQL uses prepared statements; dynamic `ORDER BY` values come from a fixed whitelist.
+- All user-supplied output is escaped with `htmlspecialchars`.
+- Every state-changing form, logout included, carries a per-session CSRF token.
+- Passwords are hashed with bcrypt (`password_hash`), with a password policy and login rate
+  limiting (5 failed attempts per IP in 15 minutes).
+- Session cookies are `HttpOnly`, `SameSite=Strict`, and `Secure` when served over HTTPS.
+  Session IDs are regenerated on login and every 15 minutes, with a 30-minute idle timeout.
+- Credentials come from environment variables. Nothing secret is stored in the code.
+- Saved cards store only the last four digits, expiry and name, never a full number or CVV.
+  Contributions are a **demo**: no payment is taken.
+- Apache blocks direct access to `includes/`, `src/`, `database/`, `tests/`, `vendor/` and
+  dotfiles.
 
-| Test Class | What it covers |
-|---|---|
-| `LoginTest` | `password_verify()` path, correct session keys, wrong password, unknown email, admin role |
-| `GreenCalculatorTest` | All 4 award thresholds by boundary value, all-green/amber/red scoring, shortfall and cost |
-| `CommunityTipsTest` | Message validation, trimming, HTML escaping, auth guard, ownership check, pagination |
-| `PaymentTest` | Cost from shortfall, clamping (min/max), formatting, float conversion, post-payment state |
+## Running with Docker (recommended)
 
-A `fake_login_tools.php` helper simulates authenticated session state for testing protected routes without a live database connection.
+You need Docker with the Compose plugin.
 
 ```bash
-php phpunit.phar --testdox --colors=never
+git clone https://github.com/Lancelcode/GreenScore.git
+cd GreenScore
+docker compose up
 ```
 
----
+Then open <http://localhost:8080>. The first start creates the database and loads the
+demo data. Stop with <kbd>Ctrl</kbd>+<kbd>C</kbd>, or run `docker compose down -v` to also
+delete the database volume and start fresh next time.
 
-## ⚙️ Installation
+No configuration is needed. To change the port or passwords, copy `.env.example` to `.env`
+and edit it before starting.
 
-### Prerequisites
-- [XAMPP](https://www.apachefriends.org/) with Apache + MySQL
-- PHP 8.2+
+### Demo accounts
 
-### 1. Clone
-
-```bash
-git clone https://github.com/Lancelcode/Graded-Unit-2-webpage.git
-```
-
-### 2. XAMPP Setup
-
-- Start **Apache** and **MySQL** in the XAMPP control panel
-- Place the project folder in `C:/xampp/htdocs/`
-
-### 3. Database
-
-- Open **phpMyAdmin** at `http://localhost/phpmyadmin`
-- Create a database named `gradedunit`
-- Import `database/gradedunit.sql`
-- Default credentials in `includes/connect_db.php`: host `localhost`, user `root`, password empty
-
-### 4. Open
-
-```
-http://localhost/Graded-Unit-2-webpage/
-```
-
-### Demo credentials
+These accounts exist only in the demo data. Change or remove them on any public server.
 
 | Role | Email | Password |
 |---|---|---|
-| Admin | `admin@greenscore.com` | *(set in your DB)* |
-| User | `joe@joe.com` | *(set in your DB)* |
+| Admin | `admin@greenscore.com` | `GreenAdmin2026` |
+| User | `hello@ecoventures.com` | `GreenDemo2026` |
 
----
-##  Author
+All other seeded users have the password `GreenDemo2026`, and all seeded admins have
+`GreenAdmin2026`. `info@blueplanet.co.uk` is deactivated, to show that blocked accounts
+can't sign in. You can also register a new account.
 
-**Djiby Sow Rebollo**
+## Running without Docker
 
-[![GitHub](https://img.shields.io/badge/GitHub-@Lancelcode-181717?style=for-the-badge&logo=github)](https://github.com/Lancelcode)
+You need PHP 8.2+ with the `mysqli` and `mbstring` extensions, and MariaDB 10.6+ or
+MySQL 8.
 
-Edinburgh College — Software Development
-Graded Unit 2 — Academic Year 2024/2025
+1. Create a database and a user, then import the schema:
 
----
+   ```bash
+   mysql -u root -p -e "CREATE DATABASE gradedunit CHARACTER SET utf8mb4;
+     CREATE USER 'greenscore'@'localhost' IDENTIFIED BY 'choose-a-password';
+     GRANT ALL ON gradedunit.* TO 'greenscore'@'localhost';"
+   mysql -u root -p gradedunit < database/gradedunit.sql
+   ```
 
-## 📄 License
+2. Configure the connection:
 
-This project is licensed under the [MIT License](LICENSE).
+   ```bash
+   cp .env.example .env
+   # then set DB_HOST=127.0.0.1 and DB_PASSWORD=choose-a-password
+   ```
 
----
+3. Start a server from the project root:
 
-<div align="center">
+   ```bash
+   php -S localhost:8000
+   ```
 
-*Built with 💚 to make sustainability measurable.*
+   Open <http://localhost:8000>. PHP's built-in server ignores `.htaccess`, so use it for
+   local development only. For Apache (for example XAMPP), put the project in the web root
+   with `AllowOverride All`. If it is served from a sub-folder, update the `ErrorDocument`
+   paths in `.htaccess` to match.
 
-</div>
+No `composer install` is needed to run the site. Composer is only used for the tests.
+
+## Running the tests
+
+```bash
+composer install
+vendor/bin/phpunit            # or: composer test
+composer lint                 # php -l on every file
+```
+
+The unit tests cover the scoring rules and award boundaries, badge levels, registration
+and password validation, credential and account-status checks, CSRF tokens, card
+validation and configuration parsing.
+
+GitHub Actions runs the lint and the tests on PHP 8.2 and 8.3 for every push and pull
+request, then builds the Docker stack and smoke-tests it.
+
+## Project structure
+
+```
+.
+├── index.php, 403.php, 404.php, health.php, style.css, .htaccess
+├── pages/              auth, calculator, community, user, admin, info
+├── includes/           bootstrap, DB connection, layout partials
+├── src/                business rules (unit tested)
+├── tests/Unit/         PHPUnit tests
+├── database/           schema and demo data
+├── assets/             images, badge illustrations, PDF guides
+├── docker/             PHP and Apache configuration for the image
+├── Dockerfile, docker-compose.yml, .env.example
+└── .github/workflows/  CI
+```
+
+## Author
+
+**Djiby Sow Rebollo** · [GitHub @Lancelcode](https://github.com/Lancelcode)
+
+## Licence
+
+Released under the [MIT Licence](LICENSE).
