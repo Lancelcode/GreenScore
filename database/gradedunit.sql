@@ -71,14 +71,7 @@ CREATE TABLE `credit_cards` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
--- Dumping data for table `credit_cards`
---
-
-INSERT INTO `credit_cards` (`id`, `user_id`, `card_number`, `expiry_date`, `cardholder_name`, `cvv`, `created_at`) VALUES
-(38, 35, '4111111111111111', '2025-05-01', 'Sarah Mitchell', '123', '2025-05-01 19:17:11'),
-(39, 39, '4111111111112222', '2025-05-08', 'Joe Doe', '456', '2025-05-02 17:17:15'),
-(40, 47, '4111111111113333', '2026-04-11', 'David Sow', '789', '2026-04-23 18:58:03'),
-(41, 34, '4111111111114444', '2026-04-24', 'GreenScore Admin', '321', '2026-04-24 20:02:06');
+-- credit_cards: no seed data (sample card rows removed)
 
 -- --------------------------------------------------------
 

@@ -96,7 +96,7 @@ Six tables with foreign key constraints and cascading deletes:
 | `green_calculator_results` | Scores, award levels, badge data, donation records |
 | `community_tips` | User-submitted tips with ownership |
 | `feedback` | Messages, admin responses, public visibility flag |
-| `credit_cards` | Saved card details per user |
+| `credit_cards` | Saved card details per user. **Demo only:** card numbers and CVVs are stored in plain text, so do not enter real card details. The schema has no seed data. |
 | `login_attempts` | IP-based rate limiting records |
 
 The full schema with seed data is available at [`database/gradedunit.sql`](database/gradedunit.sql).
