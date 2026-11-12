@@ -61,7 +61,7 @@ export async function execute(sql: string, params: Param[] = []): Promise<Result
 export async function ensureSchema(): Promise<void> {
   await execute(`
     CREATE TABLE IF NOT EXISTS sessions (
-      id CHAR(64) NOT NULL COMMENT 'SHA-256 of the session token; the token itself is never stored',
+      id CHAR(64) NOT NULL COMMENT 'SHA-256 of the session token. The token itself is never stored',
       user_id INT(10) UNSIGNED NOT NULL,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       last_seen_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

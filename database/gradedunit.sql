@@ -77,7 +77,7 @@ INSERT INTO `community_tips` (`id`, `user_id`, `message`, `created_at`) VALUES
 CREATE TABLE `credit_cards` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(10) UNSIGNED NOT NULL,
-  `card_last4` char(4) NOT NULL COMMENT 'Only the last four digits are stored; never the full number or CVV',
+  `card_last4` char(4) NOT NULL COMMENT 'Only the last four digits are stored, never the full number or CVV',
   `expiry_date` date NOT NULL,
   `cardholder_name` varchar(100) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -270,11 +270,11 @@ ALTER TABLE `green_calculator_results`
 
 --
 -- Table structure for table `sessions`
--- (added in GreenScore 2.0; the app also creates it on start-up if missing)
+-- (added in GreenScore 2.0. The app also creates it on start-up if missing.)
 --
 
 CREATE TABLE `sessions` (
-  `id` char(64) NOT NULL COMMENT 'SHA-256 of the session token; the token itself is never stored',
+  `id` char(64) NOT NULL COMMENT 'SHA-256 of the session token. The token itself is never stored',
   `user_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `last_seen_at` timestamp NOT NULL DEFAULT current_timestamp(),
