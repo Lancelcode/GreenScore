@@ -10,11 +10,11 @@ test.describe('public pages', () => {
   });
 
   for (const [path, heading] of [
-    ['/pages/info/about.php', /Why GreenScore/],
-    ['/pages/info/partner.php', /Partners/],
-    ['/pages/info/green_resources.php', /Green Resources/],
-    ['/pages/info/privacy.php', /Privacy/],
-    ['/pages/info/terms.php', /Terms/],
+    ['/about', /Why GreenScore/],
+    ['/partners', /Partners/],
+    ['/resources', /Green Resources/],
+    ['/privacy', /Privacy/],
+    ['/terms', /Terms/],
   ] as const) {
     test(`${path} renders`, async ({ page }) => {
       const response = await page.goto(path);
@@ -24,7 +24,7 @@ test.describe('public pages', () => {
   }
 
   test('community board is readable without logging in and hides emails', async ({ page }) => {
-    await page.goto('/pages/community/community.php');
+    await page.goto('/community');
     await expect(page.getByRole('heading', { name: /Community Board/ })).toBeVisible();
     await expect(page.locator('[id^="tip-"]').first()).toBeVisible();
     await expect(page.locator('[id^="tip-"]').first()).toContainText(/^\s*🟢/);
@@ -39,21 +39,34 @@ test.describe('public pages', () => {
   });
 
   test('members-only pages redirect to login', async ({ page }) => {
-    for (const path of ['/pages/calculator/green_calculator.php', '/pages/user/my_impact.php', '/pages/user/user_account.php']) {
+    for (const path of ['/calculator', '/impact', '/account']) {
       await page.goto(path);
-      await expect(page).toHaveURL(/\/pages\/auth\/login\.php$/);
+      await expect(page).toHaveURL(/\/login$/);
     }
   });
 
   test('internal files are not served', async ({ request }) => {
-    for (const path of ['/database/gradedunit.sql', '/includes/connect_db.php', '/src/Scoring.php', '/composer.json']) {
+    // Only the public/ folder is served; source, config and the database dump never are.
+    for (const path of ['/database/gradedunit.sql', '/src/lib/scoring.ts', '/package.json', '/.env', '/next.config.ts']) {
       const response = await request.get(path);
-      expect(response.status(), path).toBe(403);
+      expect(response.status(), path).toBe(404);
+    }
+  });
+
+  test('old PHP addresses redirect to their new pages', async ({ page }) => {
+    for (const [legacy, current] of [
+      ['/index.php', '/'],
+      ['/pages/info/about.php', '/about'],
+      ['/pages/community/community.php?search=solar', '/community?search=solar'],
+    ] as const) {
+      const response = await page.request.get(legacy, { maxRedirects: 0 });
+      expect(response.status(), legacy).toBe(308);
+      expect(response.headers()['location'], legacy).toBe(current);
     }
   });
 
   test('health endpoint reports ok', async ({ request }) => {
-    const response = await request.get('/health.php');
+    const response = await request.get('/health');
     expect(response.ok()).toBeTruthy();
     expect((await response.text()).trim()).toBe('ok');
   });

@@ -15,31 +15,31 @@ async function expectNoA11yViolations(page: Page) {
 
 const publicPages = [
   '/',
-  '/pages/auth/login.php',
-  '/pages/auth/register.php',
-  '/pages/auth/forgot_password.php',
-  '/pages/community/community.php',
-  '/pages/info/about.php',
-  '/pages/info/partner.php',
-  '/pages/info/green_resources.php',
-  '/pages/info/privacy.php',
-  '/pages/info/terms.php',
-  '/pages/info/greenscore_copyright.php',
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/community',
+  '/about',
+  '/partners',
+  '/resources',
+  '/privacy',
+  '/terms',
+  '/copyright',
 ];
 
 const memberPages = [
-  '/pages/calculator/green_calculator.php',
-  '/pages/calculator/certificate_history.php',
-  '/pages/user/my_impact.php',
-  '/pages/user/user_account.php',
-  '/pages/user/view_cards.php',
-  '/pages/info/feedback.php',
+  '/calculator',
+  '/certificates',
+  '/impact',
+  '/account',
+  '/account/cards',
+  '/feedback',
 ];
 
 const adminPages = [
-  '/pages/admin/manage_users.php',
-  '/pages/admin/admin_feedback.php',
-  '/pages/admin/public_feedback.php',
+  '/admin/users',
+  '/admin/feedback',
+  '/admin/public-feedback',
 ];
 
 test.describe('accessibility (axe, WCAG 2.1 AA)', () => {
@@ -82,7 +82,7 @@ test.describe('keyboard navigation', () => {
   });
 
   test('the login form can be completed with the keyboard alone', async ({ page }) => {
-    await page.goto('/pages/auth/login.php');
+    await page.goto('/login');
     await page.getByLabel(/^Email:?$/).focus();
     await page.keyboard.type(DEMO_USER.email);
     await page.keyboard.press('Tab');

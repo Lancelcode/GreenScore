@@ -9,12 +9,12 @@ async function expectNoHorizontalScroll(page: Page) {
 
 const pages = [
   '/',
-  '/pages/auth/login.php',
-  '/pages/auth/register.php',
-  '/pages/community/community.php',
-  '/pages/info/about.php',
-  '/pages/info/partner.php',
-  '/pages/info/green_resources.php',
+  '/login',
+  '/register',
+  '/community',
+  '/about',
+  '/partners',
+  '/resources',
 ];
 
 test.describe('mobile layout', () => {
@@ -36,7 +36,7 @@ test.describe('mobile layout', () => {
 
   test('the calculator and its result fit on a phone', async ({ page }) => {
     await loginAs(page, DEMO_USER);
-    await page.goto('/pages/calculator/green_calculator.php');
+    await page.goto('/calculator');
     await expectNoHorizontalScroll(page);
     await answerCalculator(page, Array(10).fill('Green'));
     await page.getByRole('button', { name: /Calculate My Score/ }).click();
@@ -48,7 +48,7 @@ test.describe('mobile layout', () => {
 
   test('member pages fit on a phone', async ({ page }) => {
     await loginAs(page, DEMO_USER);
-    for (const path of ['/pages/calculator/certificate_history.php', '/pages/user/my_impact.php', '/pages/user/user_account.php', '/pages/user/view_cards.php']) {
+    for (const path of ['/certificates', '/impact', '/account', '/account/cards']) {
       await test.step(path, async () => {
         await page.goto(path);
         await expectNoHorizontalScroll(page);

@@ -1,13 +1,15 @@
 <div align="center">
 
-<img src="assets/favicon.svg" alt="GreenScore logo" width="90" height="90" />
+<img src="public/assets/favicon.svg" alt="GreenScore logo" width="90" height="90" />
 
 # GreenScore
 
 **Sustainability scoring and certification for organisations**
 
 [![CI](https://github.com/Lancelcode/GreenScore/actions/workflows/ci.yml/badge.svg)](https://github.com/Lancelcode/GreenScore/actions/workflows/ci.yml)
-![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
+![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
+![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![MariaDB](https://img.shields.io/badge/MariaDB-11.4-003545?logo=mariadb&logoColor=white)
 ![Bootstrap 5.3](https://img.shields.io/badge/Bootstrap-5.3-7952B3?logo=bootstrap&logoColor=white)
 [![Licence: MIT](https://img.shields.io/badge/Licence-MIT-blue)](LICENSE)
@@ -33,8 +35,92 @@ shows its progress over time.
 - **Admin area.** Manage user roles and account status, edit details, reset passwords and
   moderate feedback.
 
-> Originally built for the Graded Unit 2 Software Development assessment at Edinburgh
-> College (2024/25), then containerised, security-reviewed and given automated tests.
+> Originally built in PHP for the Graded Unit 2 Software Development assessment at
+> Edinburgh College (2024/25), then containerised, security-reviewed, given automated
+> tests and, in version 2.0, rewritten in TypeScript.
+
+## From PHP to TypeScript
+
+GreenScore started life as a classic PHP application: about forty PHP scripts, each one
+handling its own form, running its own SQL and printing its own HTML. It worked, and it
+was hardened and tested over time, but version 2.0 is a complete port to **TypeScript**
+with **Next.js** and **React**. Every feature, page and rule was carried across; only
+the language and the architecture underneath changed. These are the reasons.
+
+### 1. One language from the database to the browser
+
+The PHP version was really two codebases in two languages: PHP on the server, and
+JavaScript in `<script>` tags for the password-strength meter, character counters, dark
+mode and the "delete without reloading" buttons. The end-to-end tests were a third,
+written in TypeScript. Now the pages, the server logic, the browser interactions, the
+unit tests, the end-to-end tests and the build configuration are all TypeScript. A rule
+written once can be used everywhere: the password meter in the browser and the password
+check on the server read the same list of banned passwords from the same file.
+
+### 2. Mistakes are caught before the code runs
+
+PHP only discovers most errors when a page is actually visited. TypeScript checks the
+whole program every time it is built. Every database row, form field and component has a
+declared shape, so the compiler refuses to build if, for example, a page forgets that a
+company name may be empty, passes a score where a certificate id is expected, or misspells
+a column. The project uses TypeScript's strictest settings, and the continuous
+integration pipeline will not pass a change that fails the type check.
+
+### 3. Shared building blocks instead of copy and paste
+
+Every PHP page repeated the same opening: start the session, check the login, include the
+header and navigation, add a CSRF field to every form, include the footer. Changing the
+layout meant editing dozens of files. In React each of these is a component written once:
+`<PageShell>` provides the navigation, footer, toast messages and background; a single
+`requireUser()` call protects a member page; `<ConfirmForm>` is reused for every
+"are you sure?" action. The same goes for SQL: it now goes through one small database module
+instead of `mysqli_prepare` boilerplate repeated on every page.
+
+### 4. Safer by default
+
+In PHP, security depended on remembering to do the right thing every time: escape every
+value with `htmlspecialchars`, add the CSRF token to every form, check it in every handler.
+Forgetting once opened a hole. In the new version the safe behaviour is automatic:
+
+- **Output escaping.** React escapes everything it renders, so a tip containing `<script>`
+  is shown as text, never run.
+- **Cross-site request forgery.** Forms submit to Next.js *Server Actions*, which reject
+  requests coming from other websites. On top of that, the session cookie is `SameSite=Strict`.
+- **Sessions you can revoke.** Sessions are now stored in the database (only a SHA-256
+  hash of each token). Deactivating an account, demoting an admin or resetting a password
+  takes effect on that user's very next click, instead of when their PHP session happens
+  to expire.
+
+### 5. Modern, reproducible tooling
+
+The PHP version shipped minified copies of Bootstrap and Font Awesome inside the
+repository. Now every dependency is an npm package with an exact version recorded in
+`package-lock.json`, so anyone can rebuild exactly the same app. Code quality is checked
+by ESLint, the business rules by 85 Vitest unit tests, and the whole site in a real browser by
+Playwright, all on every push.
+
+### 6. Simpler to run
+
+Instead of Apache, PHP extensions and `.htaccess` rewrite rules, the app is a single Node.js
+process. Next.js builds a self-contained server that goes into a small Docker image running
+as a non-root user. Only files in `public/` are ever served, so source code, configuration
+and the database dump can't be downloaded by mistake.
+
+### What stayed the same, and how we know it works
+
+- **The database.** The same MariaDB schema and demo data. The only addition is a
+  `sessions` table, which the app creates by itself on an existing database.
+- **Accounts.** Existing bcrypt password hashes created by PHP are accepted, so nobody
+  has to reset their password.
+- **The look and every feature.** The same Bootstrap design, photos, badges and
+  certificates.
+- **Old links.** Every old address (for example `/pages/auth/login.php`) permanently
+  redirects to its new page, so bookmarks and printed links keep working.
+- **The proof.** The Playwright suite that checked the PHP site was pointed at the new
+  one, changing only the addresses. It covers sign-up, login, the calculator, certificates,
+  Buy Points, the community board, the admin pages, phone layouts, keyboard use and a
+  WCAG 2.1 AA accessibility scan of every page, and it passes in full (51 tests). The PHP
+  unit tests were ported to Vitest case by case (85 tests).
 
 ## Screenshots
 
@@ -48,56 +134,68 @@ shows its progress over time.
 
 | Layer | Technology |
 |---|---|
-| Language | PHP 8.2+ (developed and containerised on 8.3) |
-| Database | MariaDB 11.4 (MySQL 8 also works) via `mysqli` prepared statements |
-| Web server | Apache 2.4 with `mod_rewrite` |
-| Front end | HTML5, CSS3, vanilla JavaScript, Bootstrap 5.3, Font Awesome 6 (self-hosted) |
-| Tests | PHPUnit 11 (unit), Playwright with axe-core (end-to-end, accessibility, mobile) |
-| Tooling | Docker and Docker Compose, Caddy, GitHub Actions |
+| Language | TypeScript 5.9 (strict mode) |
+| Framework | Next.js 16 (App Router, Server Components, Server Actions) on Node.js 22 |
+| UI | React 19, Bootstrap 5.3, Font Awesome 6, animate.css |
+| Database | MariaDB 11.4 (MySQL 8 also works) via `mysql2` prepared statements |
+| Passwords | bcrypt (`bcryptjs`), compatible with hashes created by the PHP version |
+| Tests | Vitest (unit), Playwright with axe-core (end-to-end, accessibility, mobile) |
+| Tooling | ESLint, Docker and Docker Compose, Caddy, GitHub Actions |
 
 ## Architecture
 
-GreenScore is a classic multi-page PHP application: each page is a PHP script that handles
-its own form submission and renders HTML. There is no framework; shared behaviour lives in
-two places:
-
 ```
-Browser ──► Apache (.htaccess rules) ──► pages/*.php ──► includes/  (bootstrap, layout, DB connection)
-                                                  │
-                                                  └──► src/       (business rules, unit tested)
-                                                          │
-                                                       MariaDB
+Browser ──► Next.js server ──► src/proxy.ts           (admin pages: 403 unless admin)
+                 │
+                 ├─► src/app/**/page.tsx               (Server Components: read data, render HTML)
+                 ├─► src/server/actions/*.ts           (Server Actions: handle form submissions)
+                 │        │
+                 │        ├─► src/server/             (database, sessions, rate limiting, toasts)
+                 │        └─► src/lib/                (business rules, unit tested, no I/O)
+                 │                 │
+                 └──────────────── MariaDB
 ```
 
-- **`includes/`**: request bootstrap (`init.php`: session hardening, security headers,
-  CSRF token, configuration), the database connection and the shared layout (`head`, `nav`,
-  `footer`).
-- **`src/`**: framework-free classes holding the rules that matter, kept apart from HTML
-  and SQL so they can be unit tested:
-  - `Scoring`: calculator answers, totals, award levels, shortfall and suggested contribution
-  - `Badges`: the fourteen badge levels
-  - `Validator`: registration, password policy, community tips and pagination
-  - `Auth`: credential and account-status checks
-  - `Card`: saved-card validation (Luhn check, expiry); only the last four digits are kept
-  - `Csrf`, `Env`: CSRF tokens and environment configuration
-- **`pages/`**: one folder per area: `auth`, `calculator`, `community`, `user`, `admin`, `info`.
+- **`src/app/`**: one folder per page (`calculator/`, `certificates/[id]/`, `admin/users/`
+  and so on). Pages are React Server Components: they run on the server, query the
+  database and send finished HTML, so the site works and is fast even before any
+  JavaScript loads. Small interactive pieces (the calculator result, the password meter,
+  the tip editor) are client components.
+- **`src/server/actions/`**: Server Actions, the functions forms submit to. Each one
+  checks who is signed in, validates its input and only then touches the database.
+- **`src/server/`**: the database pool (`db.ts`), database-backed sessions
+  (`session.ts`), login rate limiting (`rate-limit.ts`) and one-off toast messages
+  (`flash.ts`).
+- **`src/lib/`**: plain TypeScript holding the rules that matter, with no database or
+  framework code so they can be unit tested:
+  - `scoring.ts`: calculator answers, totals, award levels, shortfall and suggested contribution
+  - `badges.ts`: the fourteen badge levels
+  - `validator.ts`: registration, password policy, community tips and pagination
+  - `auth.ts`: credential and account-status checks
+  - `card.ts`: saved-card validation (Luhn check, expiry); only the last four digits are kept
+  - `format.ts`: dates and certificate references
+- **`src/components/`**: the shared page frame, navigation, footer and small reusable pieces.
 - **`database/gradedunit.sql`**: schema plus demo data.
 
 ### Security measures
 
-- All SQL uses prepared statements; dynamic `ORDER BY` values come from a fixed whitelist.
-- All user-supplied output is escaped with `htmlspecialchars`.
-- Every state-changing form, logout included, carries a per-session CSRF token.
-- Passwords are hashed with bcrypt (`password_hash`), with a password policy and login rate
-  limiting (5 failed attempts per IP in 15 minutes).
-- Session cookies are `HttpOnly`, `SameSite=Strict`, and `Secure` when served over HTTPS.
-  Session IDs are regenerated on login and every 15 minutes, with a 30-minute idle timeout.
+- All SQL uses `?` placeholders (prepared statements); sort orders come from fixed choices.
+- React escapes all rendered output.
+- Forms post to Server Actions, which reject cross-site requests; the session cookie is
+  `HttpOnly`, `SameSite=Strict`, and `Secure` when served over HTTPS.
+- Sessions live in the database as SHA-256 hashes of random 256-bit tokens, with a 30-minute
+  idle timeout and a 12-hour maximum. A new token is issued at every login, and role and
+  status are re-read on every request.
+- Admin pages are blocked with HTTP 403 before they render, and every admin action checks the
+  role again.
+- Passwords are hashed with bcrypt and must meet a password policy. Logins are rate limited
+  (5 failures per IP address and 10 per account in 15 minutes).
 - Credentials come from environment variables. Nothing secret is stored in the code.
 - Saved cards store only the last four digits, expiry and name, never a full number or CVV.
   Contributions are a **demo**: no payment is taken.
-- Apache blocks direct access to `includes/`, `src/`, `database/`, `tests/`, `vendor/`,
-  `scripts/` and dotfiles.
-- Front-end libraries are self-hosted, so pages make no third-party requests.
+- Security headers on every response (`X-Frame-Options`, `X-Content-Type-Options`,
+  `Referrer-Policy`, `Permissions-Policy`); front-end libraries are bundled, so pages make
+  no third-party requests.
 
 ## Running with Docker (recommended)
 
@@ -131,8 +229,7 @@ can't sign in. You can also register a new account.
 
 ## Running without Docker
 
-You need PHP 8.2+ with the `mysqli` and `mbstring` extensions, and MariaDB 10.6+ or
-MySQL 8.
+You need Node.js 22.18 or newer, and MariaDB 10.6+ or MySQL 8.
 
 1. Create a database and a user, then import the schema:
 
@@ -150,77 +247,87 @@ MySQL 8.
    # then set DB_HOST=127.0.0.1 and DB_PASSWORD=choose-a-password
    ```
 
-3. Start a server from the project root:
+3. Install the dependencies and start the development server:
 
    ```bash
-   php -S localhost:8000
+   npm ci
+   npm run dev
    ```
 
-   Open <http://localhost:8000>. PHP's built-in server ignores `.htaccess`, so use it for
-   local development only. For Apache (for example XAMPP), put the project in the web root
-   with `AllowOverride All`. If it is served from a sub-folder, update the `ErrorDocument`
-   paths in `.htaccess` to match.
+   Open <http://localhost:3000>. For a production build, run `npm run build` and then
+   `npm start`.
 
-No `composer install` is needed to run the site. Composer is only used for the tests.
+### Creating an admin account
+
+```bash
+npm run create-admin -- you@example.com "Your Name"
+```
+
+You'll be asked for the password twice. Running the same command for an existing email
+promotes that account to admin and resets its password. With Docker, use
+`docker compose exec app node scripts/create-admin.mts you@example.com "Your Name"`.
 
 ## Running the tests
 
 ```bash
-composer install
-vendor/bin/phpunit            # or: composer test
-composer lint                 # php -l on every file
+npm test             # unit tests (Vitest)
+npm run lint         # ESLint
+npm run typecheck    # TypeScript
 ```
 
 The unit tests cover the scoring rules and award boundaries, badge levels, registration
-and password validation, credential and account-status checks, CSRF tokens, card
-validation, proxy-aware client IPs and configuration parsing.
+and password validation, credential and account-status checks (including PHP-era password
+hashes), card validation, client IP handling and date formatting.
 
 ### End-to-end, accessibility and mobile tests
 
-Playwright drives a real browser against the Docker stack. It covers:
+Playwright drives a real browser against the running site. It covers:
 
 - sign-up, login and logout;
 - the calculator, certificates and Buy Points;
 - community tips and the admin pages;
 - an [axe](https://github.com/dequelabs/axe-core) WCAG 2.1 AA scan of every page;
 - keyboard navigation;
-- layout checks on a phone-sized screen.
+- layout checks on a phone-sized screen;
+- redirects from the old PHP addresses.
 
 ```bash
 docker compose up -d --wait
-npm ci
 npx playwright install chromium   # first time only
-npx playwright test               # or: npm run e2e
+npm run e2e
 npx playwright show-report        # HTML report with traces of any failures
 ```
 
 Set `E2E_BASE_URL` to test a different address. The tests create their own users and
 tips, so run them against a disposable database (`docker compose down -v` resets it).
 
-GitHub Actions runs the lint and unit tests on PHP 8.2 and 8.3 for every push and pull
-request, smoke-tests the Docker stack, then runs the Playwright suite against it.
+GitHub Actions runs lint, the type check, the unit tests and a production build on every
+push and pull request, smoke-tests the Docker stack, then runs the Playwright suite against it.
 
 ## Deploying
 
 [DEPLOY.md](DEPLOY.md) walks through running GreenScore on a small Debian home server
 reached over Tailscale. It covers the production Compose profile, Caddy with HTTPS,
-healthchecks, restart policies, nightly database backups and restores.
+healthchecks, restart policies, nightly database backups and restores, and upgrading a
+server that ran the PHP version.
 
 ## Project structure
 
 ```
 .
-├── index.php, 403.php, 404.php, health.php, style.css, .htaccess
-├── pages/              auth, calculator, community, user, admin, info
-├── includes/           bootstrap, DB connection, layout partials
-├── src/                business rules (unit tested)
-├── tests/Unit/         PHPUnit tests
+├── src/
+│   ├── app/            pages and routes (one folder per page), global and page styles
+│   ├── components/     page frame, navigation, footer, shared UI
+│   ├── lib/            business rules (unit tested)
+│   ├── server/         database, sessions, rate limiting, toasts, Server Actions
+│   ├── proxy.ts        admin-only gate (HTTP 403)
+│   └── instrumentation.ts  start-up schema check
+├── public/assets/      images, badge illustrations, PDF guides
+├── tests/unit/         Vitest unit tests
 ├── e2e/                Playwright end-to-end and accessibility tests
-├── database/           schema and demo data
-├── assets/             images, badge illustrations, PDF guides
-├── docker/             PHP and Apache configuration for the image
+├── database/           schema, demo data and production init script
+├── scripts/            create-admin, backup and restore tools
 ├── deploy/             Caddyfile and systemd backup timer
-├── scripts/            backup, restore and create-admin tools
 ├── Dockerfile, docker-compose.yml, docker-compose.prod.yml, .env.example
 └── .github/workflows/  CI
 ```

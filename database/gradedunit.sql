@@ -14,7 +14,7 @@
 -- Host: 127.0.0.1
 -- Generation Time: May 02, 2026 at 01:35 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- (Originally exported from phpMyAdmin for the PHP version of GreenScore.)
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -337,7 +337,24 @@ ALTER TABLE `credit_cards`
 --
 ALTER TABLE `green_calculator_results`
   ADD CONSTRAINT `fk_user` FOREIGN KEY (`user_id`) REFERENCES `new_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sessions`
+-- (added in GreenScore 2.0; the app also creates it on start-up if missing)
+--
+
+CREATE TABLE `sessions` (
+  `id` char(64) NOT NULL COMMENT 'SHA-256 of the session token; the token itself is never stored',
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `last_seen_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_sessions_user` (`user_id`),
+  CONSTRAINT `sessions_user_fk` FOREIGN KEY (`user_id`) REFERENCES `new_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 COMMIT;
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

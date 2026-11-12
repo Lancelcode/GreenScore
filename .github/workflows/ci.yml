@@ -12,35 +12,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  php:
-    name: Lint & unit tests (PHP ${{ matrix.php }})
+  quality:
+    name: Lint, type check, unit tests & build
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        php: ['8.2', '8.3']
     steps:
       - uses: actions/checkout@v4
 
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/setup-node@v4
         with:
-          php-version: ${{ matrix.php }}
-          extensions: mysqli, mbstring
-          coverage: none
-
-      - name: Lint every PHP file
-        run: |
-          find . -name '*.php' -not -path './vendor/*' -not -path './node_modules/*' -print0 \
-            | xargs -0 -n1 -P4 php -l > /dev/null
-
-      - name: Validate composer.json
-        run: composer validate --strict
+          node-version: '22'
+          cache: npm
 
       - name: Install dependencies
-        run: composer install --no-interaction --no-progress --prefer-dist
+        run: npm ci
 
-      - name: PHPUnit
-        run: vendor/bin/phpunit --testdox
+      - name: ESLint
+        run: npm run lint
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: Unit tests (Vitest)
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
 
   docker:
     name: Docker Compose smoke test
@@ -61,19 +59,24 @@ jobs:
           bash -n scripts/backup-db.sh scripts/restore-db.sh database/init-prod/02-production.sh
 
       - name: Build and start the stack
-        run: docker compose up -d --build --wait --wait-timeout 180
+        run: docker compose up -d --build --wait --wait-timeout 300
 
       - name: Check key pages respond
         run: |
           set -e
-          test "$(curl -fsS http://localhost:8080/health.php)" = "ok"
-          for path in / /pages/auth/login.php /pages/auth/register.php /pages/community/community.php; do
+          test "$(curl -fsS http://localhost:8080/health)" = "ok"
+          for path in / /login /register /community; do
             curl -fsS -o /dev/null "http://localhost:8080$path"
           done
-          # Internal files must not be served
-          for path in /database/gradedunit.sql /includes/connect_db.php /src/Scoring.php; do
-            test "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:8080$path")" = "403"
+          # Source code, configuration and the database dump must never be served
+          for path in /database/gradedunit.sql /src/lib/scoring.ts /package.json /.env; do
+            test "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:8080$path")" = "404"
           done
+
+      - name: Create an admin with the bundled script
+        run: |
+          docker compose exec -T -e ADMIN_PASSWORD=CiAdmin2026x app \
+            node scripts/create-admin.mts ci-admin@example.com "CI Admin"
 
       - name: Show logs on failure
         if: failure()
@@ -86,7 +89,7 @@ jobs:
   e2e:
     name: End-to-end & accessibility tests (Playwright)
     runs-on: ubuntu-latest
-    needs: php
+    needs: quality
     steps:
       - uses: actions/checkout@v4
 
@@ -101,7 +104,7 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Start the stack
-        run: docker compose up -d --build --wait --wait-timeout 180
+        run: docker compose up -d --build --wait --wait-timeout 300
 
       - name: Run Playwright tests
         run: npx playwright test

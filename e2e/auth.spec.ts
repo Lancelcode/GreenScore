@@ -7,7 +7,7 @@ test.describe('sign-up and login', () => {
     const email = `e2e-${id}@example.co.uk`;
     const name = `E2E Org ${id}`.slice(0, 50);
 
-    await page.goto('/pages/auth/register.php');
+    await page.goto('/register');
     await page.getByLabel(/^Name:?$/).fill(name);
     await page.getByLabel('Email address').fill(email);
     await page.getByLabel('Company Name').fill('E2E Testing Ltd');
@@ -17,7 +17,7 @@ test.describe('sign-up and login', () => {
     await page.getByLabel('Confirm Password').fill('Greener2026!');
     await page.getByRole('button', { name: 'Create account' }).click();
 
-    await expect(page).toHaveURL(/login\.php/);
+    await expect(page).toHaveURL(/\/login$/);
     await expect(page.getByText('Account created successfully')).toBeVisible();
 
     await loginAs(page, { email, password: 'Greener2026!', name });
@@ -25,7 +25,7 @@ test.describe('sign-up and login', () => {
   });
 
   test('registration enforces the password policy', async ({ page }) => {
-    await page.goto('/pages/auth/register.php');
+    await page.goto('/register');
     await page.getByLabel(/^Name:?$/).fill('Weak Password Ltd');
     await page.getByLabel('Email address').fill(`weak-${unique()}@example.co.uk`);
     await page.getByLabel('Company Name').fill('Weak Password Ltd');
@@ -40,7 +40,7 @@ test.describe('sign-up and login', () => {
 
   test('a wrong password is rejected', async ({ page }) => {
     await login(page, DEMO_USER.email, 'NotTheRightPassword1');
-    await expect(page).toHaveURL(/login\.php/);
+    await expect(page).toHaveURL(/\/login$/);
     await expect(page.getByText('Incorrect password.')).toBeVisible();
   });
 
@@ -50,7 +50,7 @@ test.describe('sign-up and login', () => {
   });
 
   test('forgotten password page does not allow anonymous resets', async ({ page }) => {
-    await page.goto('/pages/auth/forgot_password.php');
+    await page.goto('/forgot-password');
     await expect(page.getByText(/ask a GreenScore administrator/)).toBeVisible();
     await expect(page.locator('input[type="password"]')).toHaveCount(0);
   });

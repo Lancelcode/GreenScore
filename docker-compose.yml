@@ -37,10 +37,9 @@ services:
       DB_NAME: ${DB_NAME:-gradedunit}
       DB_USER: ${DB_USER:-greenscore}
       DB_PASSWORD: ${DB_PASSWORD:-greenscore-local}
-      APP_DEBUG: ${APP_DEBUG:-0}
       TRUST_PROXY: ${TRUST_PROXY:-0}
     ports:
-      - "${APP_PORT:-8080}:80"
+      - "${APP_PORT:-8080}:3000"
 
 volumes:
   db-data:

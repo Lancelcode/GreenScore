@@ -5,7 +5,7 @@
 # The demo data contains accounts with publicly documented passwords, so it is
 # removed unless KEEP_DEMO_DATA=1 (useful for a private portfolio demo — change
 # the demo passwords if you keep it). Create the first real admin afterwards
-# with scripts/create-admin.php (see DEPLOY.md).
+# with scripts/create-admin.mts (see DEPLOY.md).
 set -euo pipefail
 
 if [ "${KEEP_DEMO_DATA:-0}" = "1" ]; then

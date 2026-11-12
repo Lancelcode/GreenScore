@@ -12,8 +12,8 @@
 {$SITE_ADDRESS} {
 	encode zstd gzip
 
-	reverse_proxy app:80 {
-		health_uri /health.php
+	reverse_proxy app:3000 {
+		health_uri /health
 		health_interval 30s
 		health_timeout 5s
 	}
@@ -28,7 +28,8 @@
 	@https protocol https
 	header @https Strict-Transport-Security "max-age=31536000"
 
-	@static path /assets/* /style.css
+	# Photos and PDFs; Next.js sets long-lived caching on its own /_next/static files.
+	@static path /assets/*
 	header @static Cache-Control "public, max-age=604800"
 
 	log {

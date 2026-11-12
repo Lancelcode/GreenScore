@@ -8,7 +8,7 @@
 # Differences from the local stack:
 #   - Caddy is the only service with published ports, bound to the server's
 #     Tailscale address so nothing is reachable from the LAN or internet.
-#   - Passwords are required (no demo defaults) and debug output is off.
+#   - Passwords are required (no demo defaults).
 #   - Demo accounts are removed on first start unless KEEP_DEMO_DATA=1.
 #   - Log rotation, no-new-privileges and healthchecks on every service.
 # Requires Docker Compose v2.24 or newer (for `!reset`).
@@ -36,7 +36,6 @@ services:
     ports: !reset []
     environment:
       DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
-      APP_DEBUG: "0"
       TRUST_PROXY: "1"
     security_opt:
       - no-new-privileges:true

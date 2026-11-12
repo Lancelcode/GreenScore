@@ -10,7 +10,7 @@ test.describe('Green Calculator', () => {
   test('scores an assessment, awards a certificate and records it in history', async ({ page }) => {
     // Reduced motion skips the result dialog's zoom-in, so axe sees final colours.
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/pages/calculator/green_calculator.php');
+    await page.goto('/calculator');
     await expect(page.getByRole('heading', { level: 1, name: /Green Calculator/ })).toBeVisible();
 
     // 7 Green + 2 Amber + 1 Red = 80 → Gold
@@ -36,7 +36,7 @@ test.describe('Green Calculator', () => {
   });
 
   test('a lower score offers Buy Points, which upgrades the latest certificate', async ({ page }) => {
-    await page.goto('/pages/calculator/green_calculator.php');
+    await page.goto('/calculator');
     // 5 Green + 5 Amber = 75 → Silver, 25 points short
     await answerCalculator(page, ['Green', 'Green', 'Green', 'Green', 'Green', 'Amber', 'Amber', 'Amber', 'Amber', 'Amber']);
     await page.getByRole('button', { name: /Calculate My Score/ }).click();
@@ -46,22 +46,23 @@ test.describe('Green Calculator', () => {
     await expect(result).toContainText('25 points');
 
     // Tampering with the URL must not change the price.
-    await page.goto('/pages/calculator/buy_points.php?shortfall=1');
+    await page.goto('/buy-points?shortfall=1');
     await expect(page.getByText(/25 points/)).toBeVisible();
     await page.getByRole('button', { name: /Confirm £250\.00 Contribution/ }).click();
     await expect(page.getByText(/updated to/)).toContainText('Certificate of Gold');
   });
 
   test('incomplete answers are not accepted', async ({ page }) => {
-    await page.goto('/pages/calculator/green_calculator.php');
+    await page.goto('/calculator');
     // Bypass the browser's own "required" check to exercise the server-side validation.
     await page.locator('form', { has: page.locator('select') }).evaluate((form) => form.setAttribute('novalidate', ''));
     await page.getByRole('button', { name: /Calculate My Score/ }).click();
-    await expect(page.getByRole('alert')).toContainText('Please choose Green, Amber or Red for every measure.');
+    // Scoped to <main>: Next.js adds its own (empty) route announcer with role="alert".
+    await expect(page.locator('main').getByRole('alert')).toContainText('Please choose Green, Amber or Red for every measure.');
   });
 
   test('My Impact shows a badge level', async ({ page }) => {
-    await page.goto('/pages/user/my_impact.php');
+    await page.goto('/impact');
     await expect(page.getByRole('heading', { level: 1, name: /My Sustainability Impact/ })).toBeVisible();
     await expect(page.getByText(/Current Badge:\s*Level \d+/)).toBeVisible();
   });

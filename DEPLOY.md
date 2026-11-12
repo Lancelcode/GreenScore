@@ -10,7 +10,7 @@ have no published ports at all.
                                                    │
                                      ┌─────────────┴─────────────┐
                                      │  caddy  (HTTPS, headers)  │
-                                     │    └─► app (PHP/Apache)   │
+                                     │    └─► app (Next.js/Node) │
                                      │          └─► db (MariaDB) │
                                      └───────────────────────────┘
                                          docker compose, prod profile
@@ -122,7 +122,7 @@ All three services should show `healthy`. On first start the database is created
 ### Create your admin account
 
 ```bash
-sudo -u greenscore docker compose exec app php scripts/create-admin.php you@example.com "Your Name"
+sudo -u greenscore docker compose exec app node scripts/create-admin.mts you@example.com "Your Name"
 ```
 
 You'll be prompted for the password twice. It must have at least 8 characters,
@@ -136,7 +136,7 @@ HTTP address you configured). The first HTTPS request can take a few seconds whi
 Caddy fetches the certificate.
 
 ```bash
-curl -fsS https://greenscore.tailXXXX.ts.net/health.php     # → ok
+curl -fsS https://greenscore.tailXXXX.ts.net/health     # → ok
 ```
 
 From a machine **not** on the tailnet, the site must not respond.
@@ -215,6 +215,12 @@ starts on boot. Logs are rotated (5 × 10 MB per container).
 
 **Updating MariaDB:** `MARIADB_AUTO_UPGRADE=1` upgrades the system tables when the
 image changes. Take a backup first.
+
+**Upgrading a server that ran the PHP version:** take a backup, then run the usual
+update command. The database is reused as it is: existing passwords keep working,
+and the one new table (`sessions`) is created automatically when the app starts.
+Everyone is signed out once, because PHP sessions don't carry over. Old addresses
+such as `/pages/auth/login.php` permanently redirect to their new pages.
 
 ---
 
