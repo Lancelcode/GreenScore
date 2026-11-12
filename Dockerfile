@@ -29,7 +29,7 @@ COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/public ./public
 # The admin tool (scripts/create-admin.mts) and the rules it shares with the app.
 COPY --from=build --chown=node:node /app/scripts/create-admin.mts ./scripts/create-admin.mts
-COPY --from=build --chown=node:node /app/src/lib/validator.ts ./src/lib/validator.ts
+COPY --from=build --chown=node:node /app/src/lib/validator.ts /app/src/lib/db-config.ts ./src/lib/
 USER node
 
 EXPOSE 3000

@@ -48,6 +48,8 @@ const nextConfig: NextConfig = {
   // ~45 MB "sharp" library behind it) is left out of the Docker image.
   images: { unoptimized: true },
   outputFileTracingExcludes: { '*': ['node_modules/sharp/**', 'node_modules/@img/**'] },
+  // The nightly demo reset reads the seed data from the schema dump.
+  outputFileTracingIncludes: { '/api/cron/reset-demo': ['./database/gradedunit.sql'] },
 
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];

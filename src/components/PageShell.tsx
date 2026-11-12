@@ -1,3 +1,4 @@
+import { isDemoMode } from '@/lib/demo';
 import { readFlash } from '@/server/flash';
 import { currentUser } from '@/server/session';
 import { BackToTop } from './BackToTop';
@@ -31,6 +32,11 @@ export async function PageShell({ children, background = 'forest-hero.jpg', over
         Skip to main content
       </a>
       <Nav user={user ? { username: user.username, role: user.role } : null} />
+      {isDemoMode() && (
+        <p className="demo-notice mb-0">
+          🌱 Demo site: try anything you like. All data resets every night at 03:00 UTC.
+        </p>
+      )}
       <main id="main" tabIndex={-1}>
         {children}
       </main>

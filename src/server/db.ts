@@ -1,5 +1,6 @@
 import 'server-only';
 import mysql, { type Pool, type ResultSetHeader, type RowDataPacket } from 'mysql2/promise';
+import { connectionSettings } from '@/lib/db-config';
 
 /**
  * MariaDB/MySQL connection pool. Settings come from environment variables
@@ -16,11 +17,7 @@ declare global {
 
 function createPool(): Pool {
   return mysql.createPool({
-    host: process.env.DB_HOST ?? '127.0.0.1',
-    port: Number(process.env.DB_PORT ?? 3306),
-    user: process.env.DB_USER ?? 'greenscore',
-    password: process.env.DB_PASSWORD ?? '',
-    database: process.env.DB_NAME ?? 'gradedunit',
+    ...connectionSettings(process.env),
     charset: 'utf8mb4',
     // Return DATETIME/TIMESTAMP values as the strings stored in the database.
     dateStrings: true,

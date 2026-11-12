@@ -1,15 +1,48 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useRef } from 'react';
+import type { DemoAccount } from '@/lib/demo';
 import { login, type LoginState } from '@/server/actions/auth';
 
 const initial: LoginState = { errors: [] };
 
-export function LoginForm() {
+export function LoginForm({ demoAccounts }: { demoAccounts: DemoAccount[] }) {
   const [state, action, pending] = useActionState(login, initial);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Fill in a demo account and sign straight in.
+  function signInAs(account: DemoAccount) {
+    const form = formRef.current;
+    if (!form) return;
+    (form.elements.namedItem('email') as HTMLInputElement).value = account.email;
+    (form.elements.namedItem('password') as HTMLInputElement).value = account.password;
+    form.requestSubmit();
+  }
 
   return (
-    <form action={action} autoComplete="on">
+    <form action={action} autoComplete="on" ref={formRef}>
+      {demoAccounts.length > 0 && (
+        <div className="demo-accounts p-3 mb-4">
+          <p className="fw-semibold mb-2">Just looking around? Use a demo account:</p>
+          <div className="d-flex flex-wrap gap-2">
+            {demoAccounts.map((account) => (
+              <button
+                type="button"
+                className="btn btn-outline-success btn-sm"
+                key={account.email}
+                disabled={pending}
+                onClick={() => signInAs(account)}
+              >
+                {account.label}
+              </button>
+            ))}
+          </div>
+          <p className="small text-muted mb-0 mt-2">
+            {demoAccounts.map((account) => `${account.label}: ${account.email} / ${account.password}`).join(' · ')}
+          </p>
+        </div>
+      )}
+
       {state.errors.length > 0 && (
         <div className="alert alert-danger" role="alert">
           {state.errors.join(' ')}

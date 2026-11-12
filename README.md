@@ -96,7 +96,7 @@ Forgetting once opened a hole. In the new version the safe behaviour is automati
 The PHP version shipped minified copies of Bootstrap and Font Awesome inside the
 repository. Now every dependency is an npm package with an exact version recorded in
 `package-lock.json`, so anyone can rebuild exactly the same app. Code quality is checked
-by ESLint, the business rules by 85 Vitest unit tests, and the whole site in a real browser by
+by ESLint, the business rules by Vitest unit tests, and the whole site in a real browser by
 Playwright, all on every push.
 
 ### 6. Simpler to run
@@ -120,7 +120,7 @@ and the database dump can't be downloaded by mistake.
   one, changing only the addresses. It covers sign-up, login, the calculator, certificates,
   Buy Points, the community board, the admin pages, phone layouts, keyboard use and a
   WCAG 2.1 AA accessibility scan of every page, and it passes in full (51 tests). The PHP
-  unit tests were ported to Vitest case by case (85 tests).
+  unit tests were ported to Vitest case by case.
 
 ## Screenshots
 
@@ -164,8 +164,8 @@ Browser ──► Next.js server ──► src/proxy.ts           (admin pages: 
 - **`src/server/actions/`**: Server Actions, the functions forms submit to. Each one
   checks who is signed in, validates its input and only then touches the database.
 - **`src/server/`**: the database pool (`db.ts`), database-backed sessions
-  (`session.ts`), login rate limiting (`rate-limit.ts`) and one-off toast messages
-  (`flash.ts`).
+  (`session.ts`), login rate limiting (`rate-limit.ts`), one-off toast messages
+  (`flash.ts`) and the public demo's reset and account lock (`demo.ts`).
 - **`src/lib/`**: plain TypeScript holding the rules that matter, with no database or
   framework code so they can be unit tested:
   - `scoring.ts`: calculator answers, totals, award levels, shortfall and suggested contribution
@@ -174,6 +174,7 @@ Browser ──► Next.js server ──► src/proxy.ts           (admin pages: 
   - `auth.ts`: credential and account-status checks
   - `card.ts`: saved-card validation (Luhn check, expiry); only the last four digits are kept
   - `format.ts`: dates and certificate references
+  - `demo.ts` and `db-config.ts`: demo-mode rules and database connection settings (including TLS)
 - **`src/components/`**: the shared page frame, navigation, footer and small reusable pieces.
 - **`database/gradedunit.sql`**: schema plus demo data.
 
@@ -277,7 +278,8 @@ npm run typecheck    # TypeScript
 
 The unit tests cover the scoring rules and award boundaries, badge levels, registration
 and password validation, credential and account-status checks (including PHP-era password
-hashes), card validation, client IP handling and date formatting.
+hashes), card validation, client IP handling, date formatting, database TLS settings and
+the demo-mode rules.
 
 ### End-to-end, accessibility and mobile tests
 
@@ -306,10 +308,13 @@ push and pull request, smoke-tests the Docker stack, then runs the Playwright su
 
 ## Deploying
 
-[DEPLOY.md](DEPLOY.md) walks through running GreenScore on a small Debian home server
-reached over Tailscale. It covers the production Compose profile, Caddy with HTTPS,
-healthchecks, restart policies, nightly database backups and restores, and upgrading a
-server that ran the PHP version.
+- **Public demo on Vercel:** [DEPLOY-VERCEL.md](DEPLOY-VERCEL.md) puts GreenScore online
+  with a hosted MySQL-compatible database over TLS, one-click demo logins, protected demo
+  accounts and a nightly reset of all data.
+- **Private home server:** [DEPLOY.md](DEPLOY.md) walks through running GreenScore on a
+  small Debian server reached over Tailscale. It covers the production Compose profile,
+  Caddy with HTTPS, healthchecks, restart policies, nightly database backups and restores,
+  and upgrading a server that ran the PHP version.
 
 ## Project structure
 
@@ -328,7 +333,7 @@ server that ran the PHP version.
 ├── database/           schema, demo data and production init script
 ├── scripts/            create-admin, backup and restore tools
 ├── deploy/             Caddyfile and systemd backup timer
-├── Dockerfile, docker-compose.yml, docker-compose.prod.yml, .env.example
+├── Dockerfile, docker-compose.yml, docker-compose.prod.yml, vercel.json, .env.example
 └── .github/workflows/  CI
 ```
 

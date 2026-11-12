@@ -12,6 +12,7 @@
 import { createInterface } from 'node:readline';
 import bcrypt from 'bcryptjs';
 import mysql from 'mysql2/promise';
+import { connectionSettings } from '../src/lib/db-config.ts';
 import { isEmail, passwordError } from '../src/lib/validator.ts';
 
 function promptHidden(label: string): Promise<string> {
@@ -51,14 +52,7 @@ if (password === '') {
 const problem = passwordError(password, confirm);
 if (problem) fail(problem);
 
-const connection = await mysql.createConnection({
-  host: process.env.DB_HOST ?? '127.0.0.1',
-  port: Number(process.env.DB_PORT ?? 3306),
-  user: process.env.DB_USER ?? 'greenscore',
-  password: process.env.DB_PASSWORD ?? '',
-  database: process.env.DB_NAME ?? 'gradedunit',
-  charset: 'utf8mb4',
-});
+const connection = await mysql.createConnection({ ...connectionSettings(process.env), charset: 'utf8mb4' });
 
 try {
   const [result] = await connection.execute<mysql.ResultSetHeader>(

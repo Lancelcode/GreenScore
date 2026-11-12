@@ -5,6 +5,7 @@ import type { AccountStatus, Role } from '@/lib/auth';
 import { hashPassword } from '@/lib/auth';
 import { charLength, field, isEmail, passwordError, positiveId } from '@/lib/validator';
 import { execute, queryOne } from '../db';
+import { demoAccountLock } from '../demo';
 import { flash } from '../flash';
 import { requireAdmin } from '../session';
 
@@ -17,7 +18,10 @@ export async function updateRole(form: FormData): Promise<void> {
   const admin = await requireAdmin();
   const id = positiveId(form.get('user_id'));
   if (id === null) return;
-  if (id === admin.id) {
+  const locked = await demoAccountLock(id);
+  if (locked) {
+    await flash('error', locked);
+  } else if (id === admin.id) {
     await flash('error', 'Cannot change your own role.');
   } else {
     await execute('UPDATE new_users SET role = ? WHERE id = ?', [toRole(form.get('role')), id]);
@@ -30,7 +34,10 @@ export async function updateStatus(form: FormData): Promise<void> {
   const admin = await requireAdmin();
   const id = positiveId(form.get('user_id'));
   if (id === null) return;
-  if (id === admin.id) {
+  const locked = await demoAccountLock(id);
+  if (locked) {
+    await flash('error', locked);
+  } else if (id === admin.id) {
     await flash('error', 'Cannot change your own status.');
   } else {
     await execute('UPDATE new_users SET status = ? WHERE id = ?', [toStatus(form.get('status')), id]);
@@ -43,7 +50,10 @@ export async function deleteUser(form: FormData): Promise<void> {
   const admin = await requireAdmin();
   const id = positiveId(form.get('user_id'));
   if (id === null) return;
-  if (id === admin.id) {
+  const locked = await demoAccountLock(id);
+  if (locked) {
+    await flash('error', locked);
+  } else if (id === admin.id) {
     await flash('error', 'You cannot delete your own account.');
   } else {
     // Cascades to the user's results, tips, cards and sessions.
@@ -76,6 +86,9 @@ export async function editUser(_previous: EditUserState, form: FormData): Promis
 
   const values = { username, email, company_name: company, contact_person: contact, phone_number: phone, role, status };
   const fail = (error: string): EditUserState => ({ error, values });
+
+  const locked = await demoAccountLock(id);
+  if (locked) return fail(locked);
 
   if (username === '' || email === '') return fail('Username and email cannot be empty.');
   if (charLength(username) > 50 || email.length > 100 || charLength(company) > 100 || charLength(contact) > 100 || phone.length > 20) {

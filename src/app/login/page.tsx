@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { PageShell } from '@/components/PageShell';
+import { DEMO_ACCOUNTS, isDemoMode } from '@/lib/demo';
 import { currentUser } from '@/server/session';
 import { LoginForm } from './LoginForm';
 
@@ -19,7 +20,7 @@ export default async function LoginPage() {
         <div className="auth-wrapper">
           <div className="auth-card">
             <h1 className="h2 text-success text-center mb-4">Login to GreenScore</h1>
-            <LoginForm />
+            <LoginForm demoAccounts={isDemoMode() ? [...DEMO_ACCOUNTS] : []} />
             <div className="text-center mt-3">
               <Link href="/forgot-password" className="text-success">
                 Forgot your password?
