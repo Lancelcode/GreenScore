@@ -7,6 +7,9 @@
 --           password GreenDemo2026
 -- Card rows hold test-card last-four digits only.
 --
+-- Keys and AUTO_INCREMENT are declared inside each CREATE TABLE so the file
+-- also loads on MySQL-compatible databases such as TiDB.
+--
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
@@ -37,11 +40,13 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `community_tips` (
-  `id` int(10) UNSIGNED NOT NULL,
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` int(10) UNSIGNED NOT NULL,
   `message` text NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `community_tips`
@@ -70,13 +75,15 @@ INSERT INTO `community_tips` (`id`, `user_id`, `message`, `created_at`) VALUES
 --
 
 CREATE TABLE `credit_cards` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(10) UNSIGNED NOT NULL,
   `card_last4` char(4) NOT NULL COMMENT 'Only the last four digits are stored; never the full number or CVV',
   `expiry_date` date NOT NULL,
   `cardholder_name` varchar(100) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `credit_cards`
@@ -95,7 +102,7 @@ INSERT INTO `credit_cards` (`id`, `user_id`, `card_last4`, `expiry_date`, `cardh
 --
 
 CREATE TABLE `feedback` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(10) UNSIGNED DEFAULT NULL,
   `name` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
@@ -104,8 +111,10 @@ CREATE TABLE `feedback` (
   `visible_to_public` tinyint(1) DEFAULT 0,
   `admin_response` text DEFAULT NULL,
   `admin_username` varchar(100) DEFAULT NULL,
-  `admin_response_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `admin_response_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `feedback`
@@ -130,7 +139,7 @@ INSERT INTO `feedback` (`id`, `user_id`, `name`, `email`, `message`, `created_at
 --
 
 CREATE TABLE `green_calculator_results` (
-  `id` int(10) UNSIGNED NOT NULL,
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` int(10) UNSIGNED NOT NULL,
   `total_score` int(11) NOT NULL,
   `green_count` int(11) NOT NULL,
@@ -141,8 +150,10 @@ CREATE TABLE `green_calculator_results` (
   `feedback_message` text DEFAULT NULL,
   `shortfall` int(11) NOT NULL,
   `donation_cost` decimal(6,2) NOT NULL,
-  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_user` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=130 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `green_calculator_results`
@@ -181,11 +192,15 @@ INSERT INTO `green_calculator_results` (`id`, `user_id`, `total_score`, `green_c
 --
 
 CREATE TABLE `login_attempts` (
-  `id` int(10) UNSIGNED NOT NULL,
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `ip_address` varchar(45) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `attempted_at` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `attempted_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_ip` (`ip_address`),
+  KEY `idx_email` (`email`),
+  KEY `idx_time` (`attempted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -194,7 +209,7 @@ CREATE TABLE `login_attempts` (
 --
 
 CREATE TABLE `new_users` (
-  `id` int(10) UNSIGNED NOT NULL,
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `username` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
@@ -203,8 +218,10 @@ CREATE TABLE `new_users` (
   `status` enum('active','inactive','deactivated') NOT NULL DEFAULT 'active',
   `company_name` varchar(100) DEFAULT NULL,
   `contact_person` varchar(100) DEFAULT NULL,
-  `phone_number` varchar(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `phone_number` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `new_users`
@@ -221,94 +238,6 @@ INSERT INTO `new_users` (`id`, `username`, `email`, `password`, `role`, `created
 (47, 'CleanFuture Ltd', 'team@cleanfuture.co.uk', '$2y$10$2MqWODaHFsGESEmHdUEq2.QoSwDw3R2kYJyQFmYTW7NIuQ52VI3Ua', 'user', '2025-05-07 14:55:47', 'deactivated', 'CleanFuture Ltd', 'Anna Torres', '07700000005'),
 (48, 'EcoPath Ltd', 'contact@ecopath.co.uk', '$2y$10$2MqWODaHFsGESEmHdUEq2.QoSwDw3R2kYJyQFmYTW7NIuQ52VI3Ua', 'user', '2026-04-23 19:44:17', 'active', 'EcoPath Ltd', 'David Sow', '07700000002'),
 (49, 'GreenLeaf Group', 'hello@greenleaf.co.uk', '$2y$10$2MqWODaHFsGESEmHdUEq2.QoSwDw3R2kYJyQFmYTW7NIuQ52VI3Ua', 'user', '2026-04-24 19:53:40', 'active', 'GreenLeaf Group', 'Patricia Mills', '07700000003');
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `community_tips`
---
-ALTER TABLE `community_tips`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- Indexes for table `credit_cards`
---
-ALTER TABLE `credit_cards`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- Indexes for table `feedback`
---
-ALTER TABLE `feedback`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- Indexes for table `green_calculator_results`
---
-ALTER TABLE `green_calculator_results`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_user` (`user_id`);
-
---
--- Indexes for table `login_attempts`
---
-ALTER TABLE `login_attempts`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_ip` (`ip_address`),
-  ADD KEY `idx_email` (`email`),
-  ADD KEY `idx_time` (`attempted_at`);
-
---
--- Indexes for table `new_users`
---
-ALTER TABLE `new_users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uniq_email` (`email`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `community_tips`
---
-ALTER TABLE `community_tips`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
-
---
--- AUTO_INCREMENT for table `credit_cards`
---
-ALTER TABLE `credit_cards`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
-
---
--- AUTO_INCREMENT for table `feedback`
---
-ALTER TABLE `feedback`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
-
---
--- AUTO_INCREMENT for table `green_calculator_results`
---
-ALTER TABLE `green_calculator_results`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=130;
-
---
--- AUTO_INCREMENT for table `login_attempts`
---
-ALTER TABLE `login_attempts`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `new_users`
---
-ALTER TABLE `new_users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- Constraints for dumped tables
