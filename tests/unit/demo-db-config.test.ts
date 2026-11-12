@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { connectionSettings, tlsOptions } from '@/lib/db-config';
-import { DEMO_ACCOUNTS, RESET_TABLES, isDemoAccount, isDemoMode, seedStatements } from '@/lib/demo';
+import { DEMO_ACCOUNTS, RESET_TABLES, isDemoAccount, isDemoMode, schemaStatements, seedStatements } from '@/lib/demo';
 
 describe('database connection settings', () => {
   it('defaults to a local database without TLS', () => {
@@ -55,6 +55,19 @@ describe('demo mode', () => {
     }
     // Every table the reset empties is either refilled or meant to start empty.
     for (const table of tables) expect(RESET_TABLES).toContain(table);
+  });
+
+  it('splits the whole schema dump into runnable statements', () => {
+    const dump = readFileSync(join(process.cwd(), 'database/gradedunit.sql'), 'utf8');
+    const statements = schemaStatements(dump);
+    expect(statements.filter((s) => s.startsWith('CREATE TABLE'))).toHaveLength(7);
+    expect(statements.filter((s) => s.startsWith('INSERT INTO'))).toHaveLength(5);
+    expect(statements.filter((s) => s.includes('FOREIGN KEY') && s.startsWith('ALTER TABLE'))).toHaveLength(4);
+    // No statement was cut in half or left with a comment in it.
+    for (const s of statements) {
+      expect(s).not.toMatch(/^--/m);
+      expect(s.endsWith(';')).toBe(false);
+    }
   });
 
   it('has demo accounts that exist in the seed data', () => {

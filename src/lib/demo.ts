@@ -47,3 +47,17 @@ export const RESET_TABLES = [
 export function seedStatements(sql: string): string[] {
   return sql.match(/^INSERT INTO[\s\S]*?\);$/gm) ?? [];
 }
+
+/**
+ * Every statement in the schema dump (tables, demo data, foreign keys), in
+ * order, without comments. Used to set up an empty database.
+ */
+export function schemaStatements(sql: string): string[] {
+  return sql
+    .split('\n')
+    .filter((line) => !line.startsWith('--') && !line.startsWith('/*!'))
+    .join('\n')
+    .split(/;\s*(?:\n|$)/)
+    .map((statement) => statement.trim())
+    .filter((statement) => statement !== '');
+}

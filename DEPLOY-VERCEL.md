@@ -24,18 +24,14 @@ Any MySQL 8-compatible service with a free tier works, for example
 [Aiven for MySQL](https://aiven.io/mysql). Free tiers change over time, so check
 the current limits when you sign up. GreenScore's demo data is tiny.
 
-1. Create a database called `gradedunit`.
-2. Note the connection details: host, port, user, password. Hosted databases
-   require encrypted connections. If the provider offers a **CA certificate**,
-   download it too (TiDB Cloud doesn't need one; Aiven does).
-3. Load the schema and demo data from your computer:
+1. Create a free instance. Any empty database on it will do, including the
+   `test` database most providers create for you.
+2. Note the connection details: host, port, user, password and database name.
+   Hosted databases require encrypted connections. If the provider offers a
+   **CA certificate**, download it too (TiDB Cloud doesn't need one; Aiven does).
 
-   ```bash
-   mysql --host=<host> --port=<port> --user=<user> -p --ssl-mode=REQUIRED gradedunit < database/gradedunit.sql
-   ```
-
-   On a provider that gives you a CA file, add `--ssl-ca=ca.pem`. If the
-   provider has a web SQL console, pasting the file there works as well.
+You don't need to import anything by hand. The first run of the reset job
+(step 3) creates the tables and loads the demo data.
 
 ## 2. Create the Vercel project
 
@@ -49,7 +45,7 @@ the current limits when you sign up. GreenScore's demo data is tiny.
    | `DB_PORT` | the database port (often `3306` or `4000`) |
    | `DB_USER` | the database user |
    | `DB_PASSWORD` | the database password |
-   | `DB_NAME` | `gradedunit` |
+   | `DB_NAME` | the database name, e.g. `test` |
    | `DB_SSL` | `1` |
    | `DB_SSL_CA` | the CA certificate's contents, only if your provider gave you one |
    | `DB_POOL_SIZE` | `3` (free databases allow few connections) |
@@ -63,10 +59,12 @@ the current limits when you sign up. GreenScore's demo data is tiny.
 ## 3. Check it
 
 - `https://<project-name>.vercel.app/health` answers `ok` when the database is reachable.
-- The login page shows **Demo member** and **Demo admin** buttons.
 - In Vercel, **Settings → Cron Jobs** lists `/api/cron/reset-demo` (from
-  `vercel.json`), running daily at 03:00 UTC. **Run** it once by hand to confirm
-  it answers `{"ok":true,…}`.
+  `vercel.json`), running daily at 03:00 UTC. **Run** it once by hand. On an
+  empty database this first run creates the tables and loads the demo data, and
+  answers `{"ok":true,"installed":true,…}`. Until then the pages show
+  "Temporarily unavailable".
+- The login page shows **Demo member** and **Demo admin** buttons.
 
 ## How the demo protects itself
 
